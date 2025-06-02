@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+python-dotenv
+python-multipart
+openai
+langchain-google-genai
+langchain-core
+pydantic
+aiofiles
+websockets
+numpy
+librosa
+scipy
+setuptools
+wheel
