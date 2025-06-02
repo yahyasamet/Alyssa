@@ -1,175 +1,208 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Mic, MicOff, Square, Play, Pause } from 'lucide-react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Mic, Square, Play, Pause, Loader2, AlertTriangle, Settings2 } from 'lucide-react';
 import { cn } from '../utils';
 import { VoiceVisualizer } from './VoiceVisualizer';
-import { useAudioRecorder } from '../hooks/useAudioRecorder';
+import { useAudioRecorder, type UseAudioRecorderOptions } from '../hooks/useAudioRecorder'; // Use type-only import for UseAudioRecorderOptions
 
 interface VoiceControlsProps {
-  onAudioRecorded: (audio: Blob) => void;
-  isProcessing: boolean;
+  onAudioRecorded: (audio: Blob) => void; 
+  isProcessing: boolean; 
   className?: string;
+  isAssistantSpeaking?: boolean;
+  onInterrupt?: () => void; 
+  onVadSpeechStart?: () => void; // Added new prop
 }
 
 export const VoiceControls: React.FC<VoiceControlsProps> = ({
   onAudioRecorded,
-  isProcessing,
-  className
+  isProcessing: appIsProcessing, // Rename to avoid conflict with internal isLoading
+  className,
+  isAssistantSpeaking,
+  onInterrupt,
+  onVadSpeechStart, // Added this line
 }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
-  
+  const [lastRecordedBlob, setLastRecordedBlob] = useState<Blob | null>(null);
+  const [isPlayingLastSegment, setIsPlayingLastSegment] = useState(false);
+  const playbackAudioRef = useRef<HTMLAudioElement>(null);
+
+  const handleSpeechSegmentRecorded = useCallback((blob: Blob) => {
+    console.log('VoiceControls: Speech segment recorded', blob);
+    setLastRecordedBlob(blob); 
+    onAudioRecorded(blob); 
+  }, [onAudioRecorded]);
+
+  const audioRecorderOptions: UseAudioRecorderOptions = {
+    onSpeechSegmentRecorded: handleSpeechSegmentRecorded,
+    onVadSpeechStart, // Added this line
+  };
+
   const {
-    isRecording,
     audioLevel,
-    startRecording,
-    stopRecording,
-    recordedAudio,
     isSupported,
-    error
-  } = useAudioRecorder();
+    error: recorderError,
+    isSpeaking,      
+    isVadActive,     
+    activateVoiceDetection,
+    deactivateVoiceDetection,
+  } = useAudioRecorder(audioRecorderOptions);
 
-  // Debug logging
-  useEffect(() => {
-    console.log('VoiceControls - isSupported:', isSupported);
-    console.log('VoiceControls - error:', error);
-    console.log('VoiceControls - isRecording:', isRecording);
-  }, [isSupported, error, isRecording]);
+  // isLoading now primarily reflects VAD activity or recorder errors.
+  // App-level processing (appIsProcessing) is handled separately for button disabling.
+  const vadIsLoading = isVadActive && !isSpeaking && !recorderError;
 
-  const handleRecordToggle = async () => {
-    console.log('handleRecordToggle called - isRecording:', isRecording);
-    
-    if (isRecording) {
-      console.log('Stopping recording...');
-      const audio = await stopRecording();
-      console.log('Recording stopped, audio blob:', audio);
-      if (audio) {
-        onAudioRecorded(audio);
+  const handleMicButtonClick = async () => {
+    if (recorderError) {
+      console.error('Cannot operate, recorder error present:', recorderError);
+      return;
+    }
+
+    if (isAssistantSpeaking && onInterrupt) {
+      console.log('Interrupting assistant and activating VAD');
+      onInterrupt();
+      await activateVoiceDetection();
+      return;
+    }
+
+    if (isVadActive) {
+      console.log('VAD is active, deactivating...');
+      const finalBlob = await deactivateVoiceDetection();
+      if (finalBlob) {
+        console.log('VAD deactivated, final blob recorded:', finalBlob);
+        setLastRecordedBlob(finalBlob);
       }
     } else {
-      console.log('Starting recording...');
-      await startRecording();
+      console.log('VAD is not active, activating...');
+      setLastRecordedBlob(null); 
+      await activateVoiceDetection();
     }
   };
 
-  const handlePlayRecorded = () => {
-    if (recordedAudio && audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-        setIsPlaying(false);
+  // Effect to handle playback of the last recorded segment
+  useEffect(() => {
+    if (lastRecordedBlob && playbackAudioRef.current) {
+      const audioUrl = URL.createObjectURL(lastRecordedBlob);
+      playbackAudioRef.current.src = audioUrl;
+      return () => URL.revokeObjectURL(audioUrl);
+    }
+  }, [lastRecordedBlob]);
+
+  const handlePlayLastSegment = () => {
+    if (playbackAudioRef.current) {
+      if (isPlayingLastSegment) {
+        playbackAudioRef.current.pause();
       } else {
-        const audioUrl = URL.createObjectURL(recordedAudio);
-        audioRef.current.src = audioUrl;
-        audioRef.current.play();
-        setIsPlaying(true);
+        playbackAudioRef.current.play().catch(console.error);
       }
     }
   };
 
   useEffect(() => {
-    const audio = audioRef.current;
-    if (audio) {
-      const handleEnded = () => setIsPlaying(false);
-      audio.addEventListener('ended', handleEnded);
-      return () => audio.removeEventListener('ended', handleEnded);
-    }
+    const audioEl = playbackAudioRef.current;
+    if (!audioEl) return;
+
+    const handlePlay = () => setIsPlayingLastSegment(true);
+    const handlePauseOrEnd = () => setIsPlayingLastSegment(false);
+
+    audioEl.addEventListener('play', handlePlay);
+    audioEl.addEventListener('playing', handlePlay); // Some browsers might need this
+    audioEl.addEventListener('pause', handlePauseOrEnd);
+    audioEl.addEventListener('ended', handlePauseOrEnd);
+
+    return () => {
+      audioEl.removeEventListener('play', handlePlay);
+      audioEl.removeEventListener('playing', handlePlay);
+      audioEl.removeEventListener('pause', handlePauseOrEnd);
+      audioEl.removeEventListener('ended', handlePauseOrEnd);
+    };
   }, []);
+
 
   if (!isSupported) {
     return (
-      <div className={cn("text-center p-4", className)}>
-        <p className="text-red-500">Audio recording is not supported in this browser</p>
-      </div>
-    );
-  }
-  if (error) {
-    return (
-      <div className={cn("text-center p-4", className)}>
-        <p className="text-red-500 mb-2">{error}</p>
-        {error.includes('permission') && (
-          <p className="text-sm text-gray-600 mb-3">
-            Please allow microphone access in your browser settings and refresh the page.
-          </p>
-        )}
-        <button 
-          onClick={() => window.location.reload()}
-          className="mt-2 px-4 py-2 bg-primary-600 text-white rounded-lg text-sm hover:bg-primary-700"
-        >
-          Retry
-        </button>
+      <div className={cn("text-center p-4 text-red-500 flex flex-col items-center space-y-2", className)}>
+        <AlertTriangle className="w-10 h-10" />
+        <p>Audio recording/VAD is not supported in this browser.</p>
       </div>
     );
   }
 
+  let buttonIcon;
+  let buttonClass;
+  let statusText;
+
+  if (recorderError) {
+    buttonIcon = <AlertTriangle className="w-8 h-8 text-white" />;
+    buttonClass = "bg-red-500 hover:bg-red-600";
+    statusText = <p className="text-xs text-red-500 truncate w-full px-2">Error: {recorderError}</p>;
+  } else if (isAssistantSpeaking) {
+    buttonIcon = <Settings2 className="w-8 h-8 text-white animate-spin" /> 
+    buttonClass = "bg-yellow-500 hover:bg-yellow-600";
+    statusText = <p className="text-sm text-yellow-700 font-medium">Assistant speaking. Speak to interrupt.</p>; // Changed text
+  } else if (isVadActive && isSpeaking) {
+    buttonIcon = <Square className="w-8 h-8 text-white" />;
+    buttonClass = "bg-red-500 hover:bg-red-600 animate-pulse";
+    statusText = <p className="text-sm text-red-600 font-medium">Listening... Speaking detected</p>;
+  } else if (vadIsLoading) { // Use vadIsLoading here
+    buttonIcon = <Loader2 className="w-8 h-8 text-white animate-spin" />;
+    buttonClass = "bg-blue-500 hover:bg-blue-600";
+    statusText = <p className="text-sm text-blue-700 font-medium">Listening for voice...</p>;
+  } else { // VAD is not active
+    buttonIcon = <Mic className="w-8 h-8 text-white" />;
+    buttonClass = "bg-primary-600 hover:bg-primary-700";
+    statusText = <p className="text-sm text-gray-600">Click to start speaking</p>;
+  }
+  
+  const mainButtonDisabled = appIsProcessing; // Button disabled if app is processing (e.g. API call)
+
   return (
-    <div className={cn("flex flex-col items-center space-y-4", className)}>
-      {/* Main Record Button */}
+    <div className={cn("flex flex-col items-center space-y-3", className)}>
+      {/* Main VAD Control Button */}
       <div className="relative">
         <button
-          onClick={handleRecordToggle}
-          disabled={isProcessing}
+          onClick={handleMicButtonClick}
+          disabled={mainButtonDisabled && !isAssistantSpeaking} // Allow interrupt even if processing
           className={cn(
             "relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg",
-            isRecording
-              ? "bg-red-500 hover:bg-red-600 animate-pulse"
-              : "bg-primary-600 hover:bg-primary-700",
-            isProcessing && "opacity-50 cursor-not-allowed"
+            buttonClass,
+            mainButtonDisabled && !isAssistantSpeaking && "opacity-60 cursor-not-allowed"
           )}
         >
-          {isRecording ? (
-            <Square className="w-8 h-8 text-white" />
-          ) : (
-            <Mic className="w-8 h-8 text-white" />
-          )}
-          
-          {/* Recording indicator ring */}
-          {isRecording && (
+          {buttonIcon}
+          {(isVadActive && isSpeaking) && (
             <div className="absolute inset-0 rounded-full border-4 border-red-300 animate-ping" />
           )}
         </button>
         
-        {/* Voice visualizer */}
-        {isRecording && (
-          <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
-            <VoiceVisualizer isActive={isRecording} audioLevel={audioLevel} />
+        {(isVadActive || isSpeaking) && (
+          <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2">
+            <VoiceVisualizer isActive={isSpeaking || isVadActive} audioLevel={audioLevel} />
           </div>
         )}
       </div>
 
       {/* Status text */}
-      <div className="text-center">
-        {isProcessing ? (
-          <p className="text-sm text-gray-600">Processing...</p>
-        ) : isRecording ? (
-          <p className="text-sm text-red-600 font-medium">Recording... Click to stop</p>
-        ) : (
-          <p className="text-sm text-gray-600">Click to start recording</p>
-        )}
+      <div className="text-center h-5 mt-1">
+        {statusText}
       </div>
 
-      {/* Playback controls for recorded audio */}
-      {recordedAudio && !isRecording && (
-        <div className="flex items-center space-x-2">
+      {/* Playback for last recorded segment (optional) */}
+      {lastRecordedBlob && !isVadActive && !isSpeaking && (
+        <div className="flex items-center space-x-2 mt-3 p-2 border rounded-md bg-gray-50 shadow-sm">
           <button
-            onClick={handlePlayRecorded}
-            className="btn-secondary text-sm flex items-center space-x-1"
+            onClick={handlePlayLastSegment}
+            disabled={appIsProcessing} // Disable if app is busy
+            className="btn-secondary text-sm flex items-center space-x-1 p-2"
           >
-            {isPlaying ? (
-              <>
-                <Pause className="w-4 h-4" />
-                <span>Pause</span>
-              </>
+            {isPlayingLastSegment ? (
+              <><Pause className="w-4 h-4" /><span>Pause</span></>
             ) : (
-              <>
-                <Play className="w-4 h-4" />
-                <span>Play Recording</span>
-              </>
+              <><Play className="w-4 h-4" /><span>Play Last</span></>
             )}
           </button>
+          <p className="text-xs text-gray-500">({(lastRecordedBlob.size / 1024).toFixed(1)} KB)</p>
         </div>
       )}
-
-      {/* Hidden audio element for playback */}
-      <audio ref={audioRef} className="hidden" />
+      <audio ref={playbackAudioRef} className="hidden" />
     </div>
   );
 };

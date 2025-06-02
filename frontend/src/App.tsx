@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Settings, Trash2, Wifi, WifiOff, RefreshCw } from 'lucide-react';
 import { ChatHistory, type ChatMessage } from './components/ChatHistory';
 import { ChatInput } from './components/ChatInput';
@@ -13,6 +13,8 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentMode, setCurrentMode] = useState<'voice' | 'text'>('voice');
   const [error, setError] = useState<string | null>(null);
+  const [isAssistantSpeaking, setIsAssistantSpeaking] = useState(false); // New state
+  const [activeAudioPlayerRef, setActiveAudioPlayerRef] = useState<HTMLAudioElement | null>(null); // New state
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { isConnected, sendMessage, lastMessage, error: wsError, reconnect } = useWebSocket();
@@ -35,6 +37,14 @@ function App() {
 
   const handleAssistantResponse = async (responseText: string) => {
     try {
+      // If assistant is currently speaking, interrupt it before playing new audio
+      if (isAssistantSpeaking && activeAudioPlayerRef) {
+        console.log(`handleAssistantResponse: Assistant is speaking (src: ${activeAudioPlayerRef.src}), interrupting before new response.`);
+        handleInterrupt();
+        // Add a small delay to ensure the interruption is processed before new audio starts
+        await new Promise(resolve => setTimeout(resolve, 100)); 
+      }
+
       // Generate TTS audio
       const ttsResponse = await apiService.generateTTS(responseText);
       
@@ -50,10 +60,12 @@ function App() {
         content: responseText,
         timestamp: new Date(),
         audioUrl,
+        // autoPlay is handled by AudioPlayer based on audioUrl presence
       };
 
       setMessages(prev => [...prev, assistantMessage]);
       setIsLoading(false);
+      // Note: isAssistantSpeaking will be set to true by onAudioPlayStart
       
     } catch (error) {
       console.error('Error generating TTS:', error);
@@ -113,7 +125,7 @@ function App() {
     const userMessage: ChatMessage = {
       id: generateId(),
       type: 'user',
-      content: '🎤 Voice message',
+      content: '🎤 Voice message processing...', // Updated content
       timestamp: new Date(),
       isAudio: true,
     };
@@ -125,11 +137,23 @@ function App() {
       
       // Send audio to backend
       const response = await apiService.sendAudioMessage(audioFile);
+
+      // Update user message content with transcription if available (optional)
+      // For now, we'll just proceed to assistant response.
+      // If transcription is part of response.response, you might want to update the user message.
+      // Example:
+      // setMessages(prev => prev.map(msg => 
+      //   msg.id === userMessage.id ? { ...msg, content: \`🎤 \${response.transcription || 'Voice message'}\` } : msg
+      // ));
+
       await handleAssistantResponse(response.response);
       
     } catch (error) {
       console.error('Error sending audio:', error);
       setError('Failed to process audio. Please try again.');
+      setMessages(prev => prev.map(msg => 
+        msg.id === userMessage.id ? { ...msg, content: '⚠️ Error processing voice message' } : msg
+      ));
       setIsLoading(false);
     }
   };
@@ -145,12 +169,40 @@ function App() {
     }
   };
 
-  const handleAudioPlayStart = () => {
-    // Audio started playing - could be used for interruption logic
+  const handleAudioPlayStart = (newAudioElement: HTMLAudioElement) => {
+    if (activeAudioPlayerRef && activeAudioPlayerRef !== newAudioElement) {
+      console.log("handleAudioPlayStart: New audio starting, stopping previous active audio:", activeAudioPlayerRef.src);
+      activeAudioPlayerRef.pause();
+    }
+    setIsAssistantSpeaking(true);
+    setActiveAudioPlayerRef(newAudioElement);
+    console.log("handleAudioPlayStart: Audio play started:", newAudioElement.src, "isAssistantSpeaking:", true);
   };
 
   const handleAudioPlayEnd = () => {
-    // Audio finished playing
+    console.log("handleAudioPlayEnd: Audio play naturally ended or errored. Current active ref src before clear:", activeAudioPlayerRef?.src);
+    setIsAssistantSpeaking(false);
+    setActiveAudioPlayerRef(null);
+    console.log("handleAudioPlayEnd: isAssistantSpeaking:", false, "activeAudioPlayerRef cleared.");
+  };
+
+  const handleInterrupt = () => {
+    if (activeAudioPlayerRef) {
+      console.log("handleInterrupt: Interrupting audio:", activeAudioPlayerRef.src);
+      activeAudioPlayerRef.pause(); // Pause the audio
+    }
+    // If onPlayEnd is not reliably triggered by pause, explicitly set:
+    setIsAssistantSpeaking(false); 
+    setActiveAudioPlayerRef(null);
+    console.log("handleInterrupt: Interrupt complete. isAssistantSpeaking:", false, "activeAudioPlayerRef cleared.");
+    // VoiceControls will then activate voice detection
+  };
+
+  const handleVadSpeechStart = () => {
+    if (isAssistantSpeaking && activeAudioPlayerRef) {
+      console.log('VAD speech started, interrupting assistant');
+      handleInterrupt();
+    }
   };
 
   return (
@@ -247,7 +299,7 @@ function App() {
         {/* Chat history */}
         <ChatHistory
           messages={messages}
-          isLoading={isLoading}
+          isLoading={isLoading} // This isLoading is for assistant thinking
           onAudioPlayStart={handleAudioPlayStart}
           onAudioPlayEnd={handleAudioPlayEnd}
           className="flex-1"
@@ -258,7 +310,10 @@ function App() {
           {currentMode === 'voice' ? (
             <VoiceControls
               onAudioRecorded={handleAudioMessage}
-              isProcessing={isLoading}
+              isProcessing={isLoading} // This is app-level processing (e.g. waiting for API)
+              isAssistantSpeaking={isAssistantSpeaking}
+              onInterrupt={handleInterrupt}
+              onVadSpeechStart={handleVadSpeechStart} // Pass the new handler
               className="flex justify-center"
             />
           ) : (

@@ -7,7 +7,7 @@ interface AudioPlayerProps {
   text: string;
   isLoading?: boolean;
   autoPlay?: boolean;
-  onPlayStart?: () => void;
+  onPlayStart?: (audioElement: HTMLAudioElement) => void; // Modified
   onPlayEnd?: () => void;
   className?: string;
 }
@@ -32,7 +32,9 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
     const handlePlay = () => {
       setIsPlaying(true);
-      onPlayStart?.();
+      if (audioRef.current) {
+        onPlayStart?.(audioRef.current);
+      }
     };
 
     const handlePause = () => {

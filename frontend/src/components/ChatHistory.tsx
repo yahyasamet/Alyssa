@@ -14,7 +14,7 @@ export interface ChatMessage {
 
 interface ChatMessageProps {
   message: ChatMessage;
-  onAudioPlayStart?: () => void;
+  onAudioPlayStart?: (audioElement: HTMLAudioElement) => void; // Modified
   onAudioPlayEnd?: () => void;
   className?: string;
 }
@@ -68,7 +68,7 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
               audioUrl={message.audioUrl}
               text={message.content}
               autoPlay={true}
-              onPlayStart={onAudioPlayStart}
+              onPlayStart={(audioEl) => onAudioPlayStart && onAudioPlayStart(audioEl as HTMLAudioElement)} // Modified to pass audio element
               onPlayEnd={onAudioPlayEnd}
             />
           </div>
@@ -89,7 +89,7 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
 interface ChatHistoryProps {
   messages: ChatMessage[];
   isLoading?: boolean;
-  onAudioPlayStart?: () => void;
+  onAudioPlayStart?: (audioElement: HTMLAudioElement) => void; // Modified
   onAudioPlayEnd?: () => void;
   className?: string;
 }
