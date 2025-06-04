@@ -1,32 +1,29 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { Settings, Trash2, Wifi, WifiOff, RefreshCw } from 'lucide-react';
-import { ChatHistory, type ChatMessage } from './components/ChatHistory';
+import { useState, useEffect } from 'react';
+import { OnboardingScreen } from './components/OnboardingScreen';
+import { ChatHistory } from './components/ChatHistory';
 import { ChatInput } from './components/ChatInput';
-import { VoiceControls } from './components/VoiceControls';
 import { useWebSocket } from './hooks/useWebSocket';
 import { apiService } from './services/api';
-import { generateId } from './utils';
+import { generateId, cn } from './utils';
 import './App.css';
+
+// Keep minimal ChatMessage type for backend compatibility
+export interface ChatMessage {
+  id: string;
+  content: string;
+  type: 'user' | 'assistant';
+  timestamp: Date;
+  audioUrl?: string;
+  isAudio?: boolean;
+}
 
 function App() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [currentMode, setCurrentMode] = useState<'voice' | 'text'>('voice');
-  const [error, setError] = useState<string | null>(null);
-  const [isAssistantSpeaking, setIsAssistantSpeaking] = useState(false); // New state
-  const [activeAudioPlayerRef, setActiveAudioPlayerRef] = useState<HTMLAudioElement | null>(null); // New state
+  const [conversationMode, setConversationMode] = useState<'onboarding' | 'text'>('onboarding');
+  const [isAssistantSpeaking, setIsAssistantSpeaking] = useState(false);
+  const [activeAudioPlayerRef, setActiveAudioPlayerRef] = useState<HTMLAudioElement | null>(null);
   
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { isConnected, sendMessage, lastMessage, error: wsError, reconnect } = useWebSocket();
-
-  // Auto-scroll to bottom when new messages arrive
-  const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, []);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, scrollToBottom]);
+  const { isConnected, sendMessage, lastMessage } = useWebSocket();
 
   // Handle WebSocket messages
   useEffect(() => {
@@ -34,12 +31,11 @@ function App() {
       handleAssistantResponse(lastMessage.response);
     }
   }, [lastMessage]);
-
   const handleAssistantResponse = async (responseText: string) => {
     try {
       // If assistant is currently speaking, interrupt it before playing new audio
       if (isAssistantSpeaking && activeAudioPlayerRef) {
-        console.log(`handleAssistantResponse: Assistant is speaking (src: ${activeAudioPlayerRef.src}), interrupting before new response.`);
+        console.log(`handleAssistantResponse: Assistant is speaking, interrupting before new response.`);
         handleInterrupt();
         // Add a small delay to ensure the interruption is processed before new audio starts
         await new Promise(resolve => setTimeout(resolve, 100)); 
@@ -51,21 +47,21 @@ function App() {
       let audioUrl;
       if (ttsResponse.success && ttsResponse.audio_url) {
         audioUrl = `http://localhost:8000${ttsResponse.audio_url}`;
-      }
-
-      // Add assistant message to chat
+        // Create audio element and play
+        const audio = new Audio(audioUrl);
+        audio.onplay = () => handleAudioPlayStart(audio);
+        audio.onended = () => handleAudioPlayEnd();
+        audio.onerror = () => handleAudioPlayEnd();
+        audio.play();
+      }      // Add assistant message to conversation
       const assistantMessage: ChatMessage = {
         id: generateId(),
         type: 'assistant',
         content: responseText,
         timestamp: new Date(),
         audioUrl,
-        // autoPlay is handled by AudioPlayer based on audioUrl presence
       };
-
       setMessages(prev => [...prev, assistantMessage]);
-      setIsLoading(false);
-      // Note: isAssistantSpeaking will be set to true by onAudioPlayStart
       
     } catch (error) {
       console.error('Error generating TTS:', error);
@@ -77,19 +73,11 @@ function App() {
         content: responseText,
         timestamp: new Date(),
       };
-
       setMessages(prev => [...prev, assistantMessage]);
-      setIsLoading(false);
     }
   };
-
   const handleTextMessage = async (text: string) => {
-    if (!text.trim()) return;
-
-    setError(null);
-    setIsLoading(true);
-
-    // Add user message
+    if (!text.trim()) return;    // Add user message to conversation
     const userMessage: ChatMessage = {
       id: generateId(),
       type: 'user',
@@ -97,6 +85,9 @@ function App() {
       timestamp: new Date(),
     };
     setMessages(prev => [...prev, userMessage]);
+
+    // Switch to conversation mode when user sends text
+    setConversationMode('text');
 
     try {
       if (isConnected) {
@@ -112,20 +103,13 @@ function App() {
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      setError('Failed to send message. Please try again.');
-      setIsLoading(false);
     }
   };
-
-  const handleAudioMessage = async (audioBlob: Blob) => {
-    setError(null);
-    setIsLoading(true);
-
-    // Add user message with audio indicator
+  const handleAudioMessage = async (audioBlob: Blob) => {    // Add user message with audio indicator
     const userMessage: ChatMessage = {
       id: generateId(),
       type: 'user',
-      content: '🎤 Voice message processing...', // Updated content
+      content: '🎤 Voice message processing...',
       timestamp: new Date(),
       isAudio: true,
     };
@@ -137,198 +121,160 @@ function App() {
       
       // Send audio to backend
       const response = await apiService.sendAudioMessage(audioFile);
-
-      // Update user message content with transcription if available (optional)
-      // For now, we'll just proceed to assistant response.
-      // If transcription is part of response.response, you might want to update the user message.
-      // Example:
-      // setMessages(prev => prev.map(msg => 
-      //   msg.id === userMessage.id ? { ...msg, content: \`🎤 \${response.transcription || 'Voice message'}\` } : msg
-      // ));
-
+        // Update user message with transcription if available
+      setMessages(prev => prev.map(msg => 
+        msg.id === userMessage.id 
+          ? { ...msg, content: '🎤 Voice message' }
+          : msg
+      ));
+      
       await handleAssistantResponse(response.response);
       
     } catch (error) {
       console.error('Error sending audio:', error);
-      setError('Failed to process audio. Please try again.');
       setMessages(prev => prev.map(msg => 
-        msg.id === userMessage.id ? { ...msg, content: '⚠️ Error processing voice message' } : msg
+        msg.id === userMessage.id 
+          ? { ...msg, content: '⚠️ Error processing voice message' }
+          : msg
       ));
-      setIsLoading(false);
-    }
-  };
-
-  const handleClearHistory = async () => {
-    try {
-      await apiService.clearConversation();
-      setMessages([]);
-      setError(null);
-    } catch (error) {
-      console.error('Error clearing conversation:', error);
-      setError('Failed to clear conversation history.');
     }
   };
 
   const handleAudioPlayStart = (newAudioElement: HTMLAudioElement) => {
     if (activeAudioPlayerRef && activeAudioPlayerRef !== newAudioElement) {
-      console.log("handleAudioPlayStart: New audio starting, stopping previous active audio:", activeAudioPlayerRef.src);
+      console.log("New audio starting, stopping previous active audio");
       activeAudioPlayerRef.pause();
     }
     setIsAssistantSpeaking(true);
     setActiveAudioPlayerRef(newAudioElement);
-    console.log("handleAudioPlayStart: Audio play started:", newAudioElement.src, "isAssistantSpeaking:", true);
   };
 
   const handleAudioPlayEnd = () => {
-    console.log("handleAudioPlayEnd: Audio play naturally ended or errored. Current active ref src before clear:", activeAudioPlayerRef?.src);
+    console.log("Audio play ended");
     setIsAssistantSpeaking(false);
     setActiveAudioPlayerRef(null);
-    console.log("handleAudioPlayEnd: isAssistantSpeaking:", false, "activeAudioPlayerRef cleared.");
   };
 
   const handleInterrupt = () => {
     if (activeAudioPlayerRef) {
-      console.log("handleInterrupt: Interrupting audio:", activeAudioPlayerRef.src);
-      activeAudioPlayerRef.pause(); // Pause the audio
+      console.log("Interrupting audio");
+      activeAudioPlayerRef.pause();
     }
-    // If onPlayEnd is not reliably triggered by pause, explicitly set:
     setIsAssistantSpeaking(false); 
     setActiveAudioPlayerRef(null);
-    console.log("handleInterrupt: Interrupt complete. isAssistantSpeaking:", false, "activeAudioPlayerRef cleared.");
-    // VoiceControls will then activate voice detection
+  };
+  // Handlers for onboarding screen
+  const handleOnboardingMicClick = () => {
+    // Voice activation is handled within the onboarding screen
+    // Keep in onboarding mode for voice interactions
   };
 
-  const handleVadSpeechStart = () => {
-    if (isAssistantSpeaking && activeAudioPlayerRef) {
-      console.log('VAD speech started, interrupting assistant');
-      handleInterrupt();
-    }
+  const handleOnboardingTextSend = (text: string) => {
+    handleTextMessage(text);
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-white/20 sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary-600 to-accent-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">AI</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-semibold text-gray-800">
-                  Voice Assistant
-                </h1>
-                <div className="flex items-center space-x-2 text-sm">
-                  {isConnected ? (
-                    <>
-                      <Wifi className="w-3 h-3 text-green-500" />
-                      <span className="text-green-600">Connected</span>
-                    </>
-                  ) : (
-                    <>
-                      <WifiOff className="w-3 h-3 text-red-500" />
-                      <span className="text-red-600">Disconnected</span>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              {/* Mode Toggle */}
-              <div className="bg-gray-100 rounded-lg p-1 flex">
-                <button
-                  onClick={() => setCurrentMode('voice')}
-                  className={`px-3 py-1 text-sm rounded transition-colors ${
-                    currentMode === 'voice'
-                      ? 'bg-white text-primary-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-800'
-                  }`}
-                >
-                  Voice
-                </button>
-                <button
-                  onClick={() => setCurrentMode('text')}
-                  className={`px-3 py-1 text-sm rounded transition-colors ${
-                    currentMode === 'text'
-                      ? 'bg-white text-primary-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-800'
-                  }`}
-                >
-                  Text
-                </button>
-              </div>
-
-              {/* Action buttons */}
-              {!isConnected && (
-                <button
-                  onClick={reconnect}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  title="Reconnect"
-                >
-                  <RefreshCw className="w-4 h-4 text-gray-600" />
-                </button>
-              )}
-              
-              <button
-                onClick={handleClearHistory}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Clear history"
+  // Handler to switch back to onboarding mode
+  const handleBackToOnboarding = () => {
+    setConversationMode('onboarding');
+  };
+  // Conditional rendering based on conversation mode
+  if (conversationMode === 'text' && messages.length > 0) {
+    // Show conversation view for text chat with same design as onboarding
+    return (
+      <div className="min-h-screen bg-black text-white flex flex-col relative overflow-hidden">
+        {/* Background gradient effects - same as onboarding */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/10 to-black" />
+        
+        {/* Top hint */}
+        <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20">
+          <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 border border-white/20">
+            <p className="text-white/70 text-sm text-center">
+              💬 <span className="text-purple-300">Conversation Mode</span> • 
+              <button 
+                onClick={handleBackToOnboarding}
+                className="text-blue-300 hover:text-blue-200 underline ml-2"
               >
-                <Trash2 className="w-4 h-4 text-gray-600" />
+                Switch to Voice
               </button>
-              
-              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                <Settings className="w-4 h-4 text-gray-600" />
-              </button>
+            </p>
+          </div>
+        </div>
+
+        {/* Header with Alyssa title - same style as onboarding */}
+        <div className="relative z-10 text-center pt-20 pb-8">
+          <h1 className="text-4xl md:text-5xl font-medium text-white mb-2 tracking-wide">
+            Alyssa
+          </h1>
+          <p className="text-gray-400 text-sm md:text-base font-light">
+            Conversation History
+          </p>
+        </div>        {/* Chat history area */}
+        <div className="relative z-10 flex-1 max-w-4xl mx-auto w-full px-4 pb-32">
+          <ChatHistory
+            messages={messages}
+            isLoading={false}
+            onAudioPlayStart={handleAudioPlayStart}
+            onAudioPlayEnd={handleAudioPlayEnd}
+            className="h-full"
+            dark={true}
+          />
+        </div>
+
+        {/* Bottom Input Bar - same style as onboarding */}
+        <div className="fixed bottom-0 left-0 right-0 z-20 bg-gray-900/90 backdrop-blur-md border-t border-gray-700/30">
+          <div className="max-w-4xl mx-auto px-6 py-4">
+            <div className="flex items-center justify-between bg-gray-800/70 rounded-2xl px-6 py-4 backdrop-blur-sm border border-gray-600/30">
+              {/* Left side - Status indicators */}
+              <div className="flex items-center space-x-6">
+                {/* Connection status */}
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse shadow-lg shadow-green-500/50" />
+                  <span className="text-sm font-medium text-green-400">Connected</span>
+                </div>
+
+                {/* Speaking indicator */}
+                <div className="flex items-center space-x-2">
+                  <span className={cn(
+                    "text-sm font-medium transition-colors duration-300",
+                    isAssistantSpeaking ? "text-blue-400" : "text-gray-500"
+                  )}>
+                    {isAssistantSpeaking ? "Speaking..." : "Ready"}
+                  </span>
+                </div>
+              </div>              {/* Center - Enhanced text input */}
+              <div className="flex-1 max-w-md mx-8">
+                <ChatInput
+                  onSendMessage={handleTextMessage}
+                  isLoading={false}
+                  placeholder="Type your message..."
+                  dark={true}
+                />
+              </div>
+
+              {/* Right side - Voice mode button */}
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={handleBackToOnboarding}
+                  className="px-4 py-2 bg-blue-500/80 hover:bg-blue-500 text-white rounded-lg transition-all duration-300 text-sm font-medium"
+                >
+                  🎤 Voice Mode
+                </button>
+              </div>
             </div>
           </div>
-
-          {/* Error display */}
-          {(error || wsError) && (
-            <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-600">{error || wsError}</p>
-            </div>
-          )}
         </div>
-      </header>
+      </div>
+    );
+  }
 
-      {/* Main content */}
-      <main className="max-w-4xl mx-auto flex flex-col h-[calc(100vh-120px)]">
-        {/* Chat history */}
-        <ChatHistory
-          messages={messages}
-          isLoading={isLoading} // This isLoading is for assistant thinking
-          onAudioPlayStart={handleAudioPlayStart}
-          onAudioPlayEnd={handleAudioPlayEnd}
-          className="flex-1"
-        />
-
-        {/* Input area */}
-        <div className="bg-white/50 backdrop-blur-sm border-t border-white/20 p-4">
-          {currentMode === 'voice' ? (
-            <VoiceControls
-              onAudioRecorded={handleAudioMessage}
-              isProcessing={isLoading} // This is app-level processing (e.g. waiting for API)
-              isAssistantSpeaking={isAssistantSpeaking}
-              onInterrupt={handleInterrupt}
-              onVadSpeechStart={handleVadSpeechStart} // Pass the new handler
-              className="flex justify-center"
-            />
-          ) : (
-            <ChatInput
-              onSendMessage={handleTextMessage}
-              isLoading={isLoading}
-              placeholder="Type your message..."
-            />
-          )}
-        </div>
-
-        {/* Scroll anchor */}
-        <div ref={messagesEndRef} />
-      </main>
-    </div>
+  // Always show the onboarding screen for voice mode or initial state
+  return (
+    <OnboardingScreen
+      isAssistantSpeaking={isAssistantSpeaking}
+      onMicClick={handleOnboardingMicClick}
+      onSendText={handleOnboardingTextSend}
+      onAudioRecorded={handleAudioMessage}
+    />
   );
 }
 

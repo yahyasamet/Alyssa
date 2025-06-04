@@ -11,6 +11,7 @@ interface VoiceControlsProps {
   isAssistantSpeaking?: boolean;
   onInterrupt?: () => void; 
   onVadSpeechStart?: () => void; // Added new prop
+  onListeningStateChange?: (isListening: boolean) => void; // New prop for listening state
 }
 
 export const VoiceControls: React.FC<VoiceControlsProps> = ({
@@ -20,6 +21,7 @@ export const VoiceControls: React.FC<VoiceControlsProps> = ({
   isAssistantSpeaking,
   onInterrupt,
   onVadSpeechStart, // Added this line
+  onListeningStateChange, // Added this line
 }) => {
   const [lastRecordedBlob, setLastRecordedBlob] = useState<Blob | null>(null);
   const [isPlayingLastSegment, setIsPlayingLastSegment] = useState(false);
@@ -49,6 +51,13 @@ export const VoiceControls: React.FC<VoiceControlsProps> = ({
   // isLoading now primarily reflects VAD activity or recorder errors.
   // App-level processing (appIsProcessing) is handled separately for button disabling.
   const vadIsLoading = isVadActive && !isSpeaking && !recorderError;
+
+  // Notify parent component when listening state changes
+  useEffect(() => {
+    if (onListeningStateChange) {
+      onListeningStateChange(isVadActive && !isAssistantSpeaking);
+    }
+  }, [isVadActive, isAssistantSpeaking, onListeningStateChange]);
 
   const handleMicButtonClick = async () => {
     if (recorderError) {
