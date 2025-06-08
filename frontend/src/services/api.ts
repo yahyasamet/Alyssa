@@ -64,7 +64,7 @@ class ApiService {
     return response.json();
   }
 
-  async generateTTS(text: string, voice: string = 'nova', language: string = 'auto'): Promise<TTSResponse> {
+  async generateTTS(text: string, voice: string = 'achernar', language: string = 'auto'): Promise<TTSResponse> {
     const response = await fetch(`${this.baseUrl}/tts/generate`, {
       method: 'POST',
       headers: {
@@ -84,7 +84,7 @@ class ApiService {
     return response.json();
   }
 
-  async streamTTS(text: string, voice: string = 'nova', language: string = 'auto'): Promise<Blob> {
+  async streamTTS(text: string, voice: string = 'achernar', language: string = 'auto'): Promise<Blob> {
     const response = await fetch(`${this.baseUrl}/tts/stream`, {
       method: 'POST',
       headers: {

@@ -24,7 +24,7 @@ class ChatMessage(BaseModel):
 
 class TTSRequest(BaseModel):
     text: str
-    voice: str = "nova"
+    voice: str = "Fenrir"
     language: str = "auto"
 
 class ConnectionManager:
@@ -108,7 +108,7 @@ async def generate_tts(request: TTSRequest):
             raise HTTPException(status_code=500, detail="Failed to generate audio")
         
         # Generate unique filename
-        filename = f"tts_{uuid.uuid4().hex}.mp3"
+        filename = f"tts_{uuid.uuid4().hex}.wav"
         
         # Save audio file
         file_path = await tts_service.save_audio_file(audio_data, filename)
@@ -146,8 +146,8 @@ async def stream_tts(request: TTSRequest):
         
         return StreamingResponse(
             generate(),
-            media_type="audio/mpeg",
-            headers={"Content-Disposition": "inline; filename=speech.mp3"}
+            media_type="audio/wav",
+            headers={"Content-Disposition": "inline; filename=speech.wav"}
         )
         
     except Exception as e:

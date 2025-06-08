@@ -7,7 +7,7 @@ A modern, modular AI voice assistant powered by Google's Gemini 2.0 Flash and Op
 - 🎙️ **Voice Activation**: Automatic voice detection and recording
 - 🧠 **Gemini Integration**: Direct audio processing without STT
 - 💬 **Smart Conversations**: Contextual AI responses
-- 🔊 **High-Quality TTS**: OpenAI's GPT-4o-mini-TTS with Tunisian dialect
+- 🔊 **High-Quality TTS**: Google Gemini 2.5 Flash TTS with voice customization
 - 🔁 **Voice Interruption**: Stop TTS when user starts speaking
 - 🎨 **Modern UI**: Beautiful React interface with Tailwind CSS
 - 🔌 **Modular Architecture**: Easily extensible with tools and agents
@@ -18,6 +18,9 @@ A modern, modular AI voice assistant powered by Google's Gemini 2.0 Flash and Op
 ```bash
 cd backend
 pip install -r requirements.txt
+# Copy and configure environment variables
+cp .env.example .env
+# Edit .env file with your API keys
 python main.py
 ```
 
@@ -29,10 +32,10 @@ npm run dev
 ```
 
 ### Environment Variables
-Create a `.env` file with:
+Create a `.env` file in the backend directory with:
 ```
-GOOGLE_API_KEY=your_gemini_api_key
-OPENAI_API_KEY=your_openai_api_key
+GOOGLE_API_KEY=your_GOOGLE_API_KEY
+GOOGLE_API_KEY=your_GOOGLE_API_KEY
 ```
 
 ## 🛠️ Tech Stack
@@ -40,7 +43,7 @@ OPENAI_API_KEY=your_openai_api_key
 - **Frontend**: React + Vite + TypeScript + Tailwind CSS
 - **Backend**: FastAPI + Python
 - **AI**: Google Gemini 2.0 Flash
-- **TTS**: OpenAI GPT-4o-mini-TTS
+- **TTS**: Google Gemini 2.5 Flash TTS
 - **Audio**: Web Audio API + MediaRecorder
 
 ## 📦 Project Structure

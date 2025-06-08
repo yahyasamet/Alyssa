@@ -6,5 +6,7 @@
 /backend/app/core/__pycache__
 /backend/app/routes/__pycache__
 /backend/venv
+/backend/.venv
+/backend/.env
 /frontend/node_modules
 /backend/static/audio/
