@@ -9,7 +9,7 @@ from .tools import (
     list_events,
 )
 
-Caldendar_agent = Agent(
+root_agent = Agent(
     # A unique name for the agent.
     name="Caldendar_agent",
     model="gemini-2.0-flash-exp",
