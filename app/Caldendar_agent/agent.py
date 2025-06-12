@@ -11,7 +11,7 @@ from .tools import (
 
 Caldendar_agent = Agent(
     # A unique name for the agent.
-    name="jarvis",
+    name="Caldendar_agent",
     model="gemini-2.0-flash-exp",
     description="Agent to help with scheduling and calendar operations.",
     instruction=f"""
