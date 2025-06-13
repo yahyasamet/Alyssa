@@ -1,2 +1,11 @@
+<<<<<<< Updated upstream
 /.env
 /node_modules
+=======
+.env
+__pycache__/
+.venv/
+app/venv/
+*.json
+.vscode/
+>>>>>>> Stashed changes
