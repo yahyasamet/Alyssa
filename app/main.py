@@ -208,7 +208,11 @@ async def websocket_endpoint(
     client_to_agent_task = asyncio.create_task(
         client_to_agent_messaging(websocket, live_request_queue)
     )
-    await asyncio.gather(agent_to_client_task, client_to_agent_task)
+    try:
+        await asyncio.gather(agent_to_client_task, client_to_agent_task)
+    except Exception as e:
+        print(f"An error occurred in the websocket tasks: {e}")
+    finally:
+        # Disconnected
+        print(f"Client #{session_id} disconnected")
 
-    # Disconnected
-    print(f"Client #{session_id} disconnected")
