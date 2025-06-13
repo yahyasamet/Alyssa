@@ -9,13 +9,16 @@ from google.adk.tools import google_search
 #         "current_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
 #     }
 
-root_agent = Agent(
-    name="tool_agent",
-    model="gemini-2.0-flash",
-    description="Tool agent",
+search_agent = Agent(
+    name="search_agent",
+    model="gemini-2.0-flash-exp",
+    description="Agent to help with searching the web for information.",
     instruction="""
     You are a helpful assistant that can use the following tools:
     - google_search
+
+    If the user asks about anything else, 
+    you should delegate the task to the manager agent.
     """,
     tools=[google_search],
     # tools=[get_current_time],

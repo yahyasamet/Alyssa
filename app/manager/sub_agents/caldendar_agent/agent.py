@@ -9,9 +9,9 @@ from .tools import (
     list_events,
 )
 
-root_agent = Agent(
+caldendar_agent = Agent(
     # A unique name for the agent.
-    name="Caldendar_agent",
+    name="caldendar_agent",
     model="gemini-2.0-flash-exp",
     description="Agent to help with scheduling and calendar operations.",
     instruction=f"""
@@ -63,6 +63,9 @@ root_agent = Agent(
     - NEVER show ```tool_outputs...``` in your response.
 
     Today's date is {get_current_time()}.
+
+    If the user asks about anything else, 
+    you should delegate the task to the manager agent.
     """,
     tools=[
         list_events,
