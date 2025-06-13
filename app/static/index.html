@@ -7,6 +7,12 @@
     <script src="/static/js/app.js" type="module"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
+    
+    <!-- SiriWave Dependencies -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/textillate/0.4.0/jquery.textillate.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script src="https://unpkg.com/siriwave/dist/siriwave.umd.min.js"></script>
   </head>
 
   <body>
@@ -30,24 +36,35 @@
 
       <!-- Main Interface -->
       <div class="main-interface">
-        <!-- Voice Blob Container -->
-        <div class="blob-container">
-          <div id="voice-blob" class="voice-blob idle">
-            <div class="blob-core"></div>
-            <div class="blob-aura"></div>
-            <div class="blob-particles">
-              <div class="particle"></div>
-              <div class="particle"></div>
-              <div class="particle"></div>
-              <div class="particle"></div>
-              <div class="particle"></div>
-              <div class="particle"></div>
+        <!-- Blob and SiriWave Wrapper -->
+        <div class="blob-siriwave-wrapper">
+          <!-- Voice Blob Container -->
+          <div class="blob-container" id="blob-container">
+            <div id="voice-blob" class="voice-blob idle">
+              <div class="blob-core"></div>
+              <div class="blob-aura"></div>
+              <div class="blob-particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+              </div>
+            </div>
+            
+            <!-- State Indicator -->
+            <div id="state-indicator" class="state-indicator">
+              <span id="state-text">Ready to help</span>
             </div>
           </div>
-          
-          <!-- State Indicator -->
-          <div id="state-indicator" class="state-indicator">
-            <span id="state-text">Ready to help</span>
+
+          <!-- SiriWave Container (Hidden by default) -->
+          <div class="siriwave-container" id="siriwave-container">
+            <div class="siri-content">
+              <p class="siri-message" id="siri-message">Alyssa is speaking...</p>
+              <div id="siri-wave"></div>
+            </div>
           </div>
         </div>
 
@@ -101,6 +118,13 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Debug Controls (remove in production) -->
+      <div class="debug-controls" style="position: fixed; top: 10px; right: 10px; z-index: 1000;">
+        <button onclick="testSpeakingState()" style="padding: 8px 12px; background: #667eea; color: white; border: none; border-radius: 4px; margin: 2px; font-size: 12px;">Test Speaking</button>
+        <button onclick="testThinkingState()" style="padding: 8px 12px; background: #ffe066; color: black; border: none; border-radius: 4px; margin: 2px; font-size: 12px;">Test Thinking</button>
+        <button onclick="testIdleState()" style="padding: 8px 12px; background: #34A853; color: white; border: none; border-radius: 4px; margin: 2px; font-size: 12px;">Test Idle</button>
       </div>
 
       <!-- Recording Indicator -->

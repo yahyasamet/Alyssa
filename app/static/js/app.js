@@ -40,6 +40,12 @@ const stopAudioButton = document.getElementById("stopAudioButton");
 const recordingIndicator = document.getElementById("recording-indicator");
 const voiceBlob = document.getElementById("voice-blob");
 const stateText = document.getElementById("state-text");
+const blobContainer = document.getElementById("blob-container");
+const siriwaveContainer = document.getElementById("siriwave-container");
+const siriMessage = document.getElementById("siri-message");
+
+// SiriWave instance
+let siriWave = null;
 
 // Blob state management
 class BlobStateManager {
@@ -48,7 +54,7 @@ class BlobStateManager {
     this.stateTexts = {
       idle: 'Ready to help',
       listening: 'I\'m listening...',
-      speaking: 'Speaking...',
+      speaking: 'Alyssa is speaking...',
       thinking: 'Thinking...'
     };
   }
@@ -56,6 +62,13 @@ class BlobStateManager {
   setState(newState) {
     if (this.currentState !== newState) {
       console.log(`Blob state changing from ${this.currentState} to ${newState}`);
+      
+      // Handle thinking and speaking states - show SiriWave, hide blob
+      if (newState === 'speaking' || newState === 'thinking') {
+        this.showSiriWave();
+      } else {
+        this.hideSiriWave();
+      }
       
       // Remove all state classes
       voiceBlob.classList.remove('idle', 'listening', 'speaking', 'thinking');
@@ -68,10 +81,145 @@ class BlobStateManager {
         stateText.textContent = this.stateTexts[newState] || this.stateTexts.idle;
       }
       
+      // Update siri message for thinking and speaking
+      if ((newState === 'speaking' || newState === 'thinking') && siriMessage) {
+        siriMessage.textContent = this.stateTexts[newState];
+      }
+      
       // Update current state
       this.currentState = newState;
       
       console.log(`Blob state successfully changed to: ${newState}`);
+    }
+  }
+
+  showSiriWave() {
+    console.log('Attempting to show SiriWave...');
+    if (blobContainer && siriwaveContainer) {
+      console.log('Containers found, proceeding with SiriWave display');
+      // Hide blob container
+      blobContainer.classList.add('hidden');
+      
+      // Add state class to SiriWave container for CSS styling
+      siriwaveContainer.classList.remove('thinking', 'speaking');
+      siriwaveContainer.classList.add(this.currentState);
+      
+      // Show SiriWave container
+      setTimeout(() => {
+        siriwaveContainer.classList.add('visible');
+        console.log('SiriWave container should now be visible');
+      }, 50);
+      
+      // Initialize SiriWave if not already done
+      this.initSiriWave();
+      
+      // Start SiriWave animation with different settings based on state
+      if (siriWave) {
+        // Adjust animation based on current state
+        if (this.currentState === 'thinking') {
+          siriWave.setAmplitude(0.5); // Lower amplitude for thinking
+          siriWave.setSpeed(0.1); // Slower speed for thinking
+        } else if (this.currentState === 'speaking') {
+          siriWave.setAmplitude(1); // Higher amplitude for speaking
+          siriWave.setSpeed(0.2); // Normal speed for speaking
+        }
+        siriWave.start();
+        console.log('SiriWave animation started for state:', this.currentState);
+      } else {
+        console.log('Using fallback wave animation');
+        // Fallback is already animated via CSS
+      }
+    } else {
+      console.error('SiriWave containers not found:', {
+        blobContainer: !!blobContainer,
+        siriwaveContainer: !!siriwaveContainer
+      });
+    }
+  }
+
+  hideSiriWave() {
+    if (blobContainer && siriwaveContainer) {
+      // Hide SiriWave container
+      siriwaveContainer.classList.remove('visible');
+      
+      // Show blob container
+      blobContainer.classList.remove('hidden');
+      
+      // Stop SiriWave animation
+      if (siriWave) {
+        siriWave.stop();
+      }
+      
+      console.log('SiriWave hidden, blob container shown');
+    }
+  }
+
+  initSiriWave() {
+    console.log('Initializing SiriWave...', {
+      siriWaveExists: !!siriWave,
+      SiriWaveClassExists: !!window.SiriWave
+    });
+    
+    if (!siriWave && window.SiriWave) {
+      try {
+        // Calculate responsive dimensions
+        const container = document.getElementById("siri-wave");
+        if (!container) {
+          console.error('SiriWave container element not found');
+          this.createFallbackWave();
+          return;
+        }
+        
+        const maxWidth = Math.min(640, window.innerWidth - 40);
+        const width = maxWidth;
+        const height = Math.max(150, Math.min(200, width * 0.3125)); // Maintain aspect ratio
+        
+        console.log('Creating SiriWave with dimensions:', { width, height });
+        
+        siriWave = new SiriWave({
+          container: container,
+          width: width,
+          height: height,
+          style: "ios9",
+          amplitude: 1,
+          speed: 0.2,
+          autostart: false,
+          color: "#667eea",
+          frequency: 6,
+          globalCompositeOperation: 'lighter'
+        });
+        console.log('SiriWave initialized successfully');
+      } catch (error) {
+        console.error('Error initializing SiriWave:', error);
+        this.createFallbackWave();
+      }
+    } else if (!window.SiriWave) {
+      console.error('SiriWave library not loaded, using fallback');
+      this.createFallbackWave();
+    } else {
+      console.log('SiriWave already initialized');
+    }
+  }
+
+  createFallbackWave() {
+    const container = document.getElementById("siri-wave");
+    if (container && !container.querySelector('.siri-wave-fallback')) {
+      container.innerHTML = `
+        <div class="siri-wave-fallback">
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+        </div>
+      `;
+      console.log('Fallback wave animation created');
     }
   }
 
@@ -109,6 +257,32 @@ document.addEventListener('DOMContentLoaded', function() {
   statusDot.classList.add("connecting");
   connectionStatus.textContent = "Connecting...";
   blobState.setState('idle');
+  
+  // Wait for SiriWave library to load and then initialize Textillate
+  setTimeout(() => {
+    console.log('Checking for SiriWave availability:', !!window.SiriWave);
+    
+    // Initialize Textillate when jQuery is available
+    if (window.$ && $.fn.textillate) {
+      $('.siri-message').textillate({
+        loop: false,
+        sync: true,
+        in: {
+          effect: "fadeInUp",
+          sync: true,
+          delay: 50
+        },
+        out: {
+          effect: "fadeOutUp",
+          sync: true,
+          delay: 50
+        },
+      });
+      console.log('Textillate initialized successfully');
+    } else {
+      console.warn('jQuery or Textillate not available');
+    }
+  }, 500); // Give time for all external libraries to load
 });
 
 // Add blob click interaction
@@ -190,13 +364,19 @@ function connectWebsocket() {
         speakingAnimation.cancel();
         speakingAnimation = null;
       }
+      
+      // Stop SiriWave and show blob again
       blobState.setState('idle');
       return;
     }
 
     // If it's audio, play it
     if (message_from_server.mime_type === "audio/pcm" && audioPlayerNode) {
+      console.log('Audio message received, setting speaking state');
       audioPlayerNode.port.postMessage(base64ToArray(message_from_server.data));
+      
+      // Hide typing indicator when speaking starts
+      typingIndicator.classList.remove("visible");
       
       // Set blob to speaking state during audio playback
       blobState.setState('speaking');
@@ -205,7 +385,9 @@ function connectWebsocket() {
       if (speakingAnimation) {
         speakingAnimation.cancel();
       }
-      speakingAnimation = blobVisualizer.createSpeakingAnimation();
+      if (blobVisualizer) {
+        speakingAnimation = blobVisualizer.createSpeakingAnimation();
+      }
 
       // If we have an existing message element for this turn, add audio icon if needed
       if (currentMessageId) {
@@ -508,3 +690,43 @@ function arrayBufferToBase64(buffer) {
   }
   return window.btoa(binary);
 }
+
+// Window resize handler for SiriWave
+window.addEventListener('resize', () => {
+  if (siriWave && blobState.getState() === 'speaking') {
+    // Reinitialize SiriWave with new dimensions
+    siriWave = null;
+    blobState.initSiriWave();
+  }
+});
+
+// Debug functions (remove in production)
+window.testSpeakingState = function() {
+  console.log('Testing speaking state...');
+  if (blobState) {
+    blobState.setState('speaking');
+  }
+};
+
+window.testThinkingState = function() {
+  console.log('Testing thinking state...');
+  if (blobState) {
+    blobState.setState('thinking');
+  }
+};
+
+window.testIdleState = function() {
+  console.log('Testing idle state...');
+  if (blobState) {
+    blobState.setState('idle');
+  }
+};
+
+// Log current state
+window.getCurrentState = function() {
+  console.log('Current state:', blobState ? blobState.getState() : 'No state manager');
+  console.log('SiriWave exists:', !!siriWave);
+  console.log('SiriWave library loaded:', !!window.SiriWave);
+};
+
+// Initialize blob state manager

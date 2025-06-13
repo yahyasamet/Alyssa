@@ -154,11 +154,17 @@ body::before {
 
 /* Voice Blob Container */
 .blob-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 30px;
-  margin: 40px 0;
+  transition: var(--transition-smooth);
 }
 
 /* Voice Blob Styles */
@@ -699,95 +705,174 @@ body::before {
   }
 }
 
-/* Responsive Design */
+/* Voice Blob Container */
+.blob-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  margin: 40px 0;
+  min-height: 280px;
+  justify-content: center;
+  transition: var(--transition-smooth);
+  position: relative;
+}
+
+/* SiriWave Container Styles */
+.siriwave-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: var(--transition-smooth);
+  pointer-events: none;
+}
+
+.siriwave-container.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Create a wrapper to contain both blob and siriwave in the same space */
+.main-interface {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  position: relative;
+}
+
+.blob-siriwave-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  height: 360px; /* Fixed height to contain both blob and SiriWave */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 40px 0;
+}
+
+.siri-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+}
+
+.siri-message {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  opacity: 0.9;
+}
+
+#siri-wave {
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  box-shadow: var(--glass-shadow);
+}
+
+/* Hide/Show transitions */
+.blob-container.hidden {
+  opacity: 0;
+  transform: scale(0.8);
+  pointer-events: none;
+}
+
+.blob-container {
+  transition: var(--transition-smooth);
+}
+
+/* Responsive adjustments for SiriWave */
 @media (max-width: 768px) {
-  .app-container {
-    padding: 15px;
+  .siri-message {
+    font-size: 1.2rem;
   }
   
-  .app-header {
-    flex-direction: column;
-    gap: 20px;
-    text-align: center;
-  }
-  
-  .brand h1 {
-    font-size: 2rem;
-  }
-  
-  .voice-blob {
-    width: 220px;
-    height: 220px;
-  }
-  
-  .blob-core {
-    width: 160px;
-    height: 160px;
-  }
-  
-  .blob-aura {
-    width: 200px;
-    height: 200px;
-  }
-  
-  .messages-container {
-    padding: 20px;
-    min-height: 250px;
-    max-height: 400px;
-  }
-  
-  .messages-container p {
-    max-width: 90%;
-  }
-  
-  .voice-controls {
-    flex-direction: column;
-  }
-  
-  .voice-button {
+  #siri-wave {
     width: 100%;
-    justify-content: center;
-  }
-  
-  .recording-indicator {
-    top: 20px;
-    right: 20px;
-    left: 20px;
-    justify-content: center;
+    max-width: 400px;
   }
 }
 
 @media (max-width: 480px) {
-  .brand h1 {
-    font-size: 1.8rem;
+  .siri-message {
+    font-size: 1rem;
   }
   
-  .voice-blob {
-    width: 180px;
-    height: 180px;
+  #siri-wave {
+    max-width: 300px;
   }
-  
-  .blob-core {
-    width: 130px;
-    height: 130px;
-  }
-  
-  .blob-aura {
-    width: 160px;
-    height: 160px;
-  }
-  
-  .input-container {
-    border-radius: 20px;
-  }
-  
-  #message {
-    padding: 14px 18px;
-    font-size: 15px;
-  }
-  
-  .send-button {
-    width: 45px;
-    height: 45px;
-  }
+}
+
+/* Fallback Wave Animation (if SiriWave fails) */
+.siri-wave-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  width: 100%;
+  max-width: 640px;
+  gap: 3px;
+}
+
+.siri-wave-fallback .wave-bar {
+  width: 4px;
+  background: linear-gradient(to top, #667eea, #764ba2);
+  border-radius: 2px;
+  animation: waveAnimation 1.5s ease-in-out infinite;
+}
+
+.siri-wave-fallback .wave-bar:nth-child(1) { animation-delay: 0s; height: 20px; }
+.siri-wave-fallback .wave-bar:nth-child(2) { animation-delay: 0.1s; height: 40px; }
+.siri-wave-fallback .wave-bar:nth-child(3) { animation-delay: 0.2s; height: 60px; }
+.siri-wave-fallback .wave-bar:nth-child(4) { animation-delay: 0.3s; height: 80px; }
+.siri-wave-fallback .wave-bar:nth-child(5) { animation-delay: 0.4s; height: 100px; }
+.siri-wave-fallback .wave-bar:nth-child(6) { animation-delay: 0.5s; height: 120px; }
+.siri-wave-fallback .wave-bar:nth-child(7) { animation-delay: 0.6s; height: 100px; }
+.siri-wave-fallback .wave-bar:nth-child(8) { animation-delay: 0.7s; height: 80px; }
+.siri-wave-fallback .wave-bar:nth-child(9) { animation-delay: 0.8s; height: 60px; }
+.siri-wave-fallback .wave-bar:nth-child(10) { animation-delay: 0.9s; height: 40px; }
+.siri-wave-fallback .wave-bar:nth-child(11) { animation-delay: 1s; height: 20px; }
+
+@keyframes waveAnimation {
+  0%, 100% { transform: scaleY(0.5); opacity: 0.7; }
+  50% { transform: scaleY(1.5); opacity: 1; }
+}
+
+#siri-wave {
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  box-shadow: var(--glass-shadow);
+}
+
+/* Different wave animations for thinking vs speaking */
+.siriwave-container.thinking .siri-wave-fallback .wave-bar {
+  animation-duration: 2.5s; /* Slower for thinking */
+  opacity: 0.6; /* More subdued for thinking */
+}
+
+.siriwave-container.speaking .siri-wave-fallback .wave-bar {
+  animation-duration: 1.5s; /* Normal speed for speaking */
+  opacity: 1; /* Full opacity for speaking */
 }
