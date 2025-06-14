@@ -3,6 +3,7 @@ from google.adk.tools.agent_tool import AgentTool
 
 # Import your agents and tools
 from .sub_agents.caldendar_agent.agent import caldendar_agent
+from .sub_agents.gmail_agent.agent import gmail_agent
 from .sub_agents.search_agent.agent import search_agent
 from .tools.tools import get_current_time
 
@@ -17,6 +18,7 @@ root_agent = Agent(
 
     You have access to the following agents as tools:
     - **caldendar_agent**: Use for any tasks related to creating, finding, or managing calendar events.
+    - **gmail_agent**: Use for any tasks related to sending, reading, searching, or managing Gmail emails.
     - **search_agent**: Use for general web searches or to find up-to-date information.
 
     You also have access to this function tool:
@@ -27,6 +29,7 @@ root_agent = Agent(
     ],
     tools=[
         AgentTool(caldendar_agent),
+        AgentTool(gmail_agent),
         AgentTool(search_agent),
         get_current_time,
     ],

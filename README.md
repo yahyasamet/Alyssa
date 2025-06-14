@@ -1,6 +1,20 @@
-# Google Calendar Integration for ADK Voice Assistant
+# Google Calendar & Gmail Integration for ADK Voice Assistant
 
-This document explains how to set up and use the Google Calendar integration with your ADK Voice Assistant.
+This document explains how to set up and use the Google Calendar and Gmail integration with your ADK Voice Assistant.
+
+## Features
+
+### Calendar Agent
+- **List Events**: View upcoming calendar events for specific date ranges
+- **Create Events**: Add new events to your Google Calendar  
+- **Edit Events**: Modify existing events (change title, time, etc.)
+- **Delete Events**: Remove events from your calendar
+
+### Gmail Agent
+- **Send Emails**: Send emails to one or more recipients with CC/BCC support
+- **List Emails**: View emails from inbox or specific labels
+- **Read Emails**: Read full email content including attachments info
+- **Search Emails**: Search emails using Gmail's powerful search syntax
 
 ## Setup Instructions
 
@@ -53,6 +67,9 @@ GOOGLE_API_KEY=your_api_key_here
 3. Enable the Google Calendar API for your project:
    - In the sidebar, navigate to "APIs & Services" > "Library"
    - Search for "Google Calendar API" and enable it
+4. Enable the Gmail API for your project:
+   - In the sidebar, navigate to "APIs & Services" > "Library"
+   - Search for "Gmail API" and enable it
 
 ### 4. Create OAuth 2.0 Credentials
 
@@ -64,19 +81,25 @@ GOOGLE_API_KEY=your_api_key_here
 6. Download the credentials JSON file
 7. Save the file as `credentials.json` in the root directory of this project
 
-### 5. Run the Setup Script
+### 5. Run the Setup Scripts
 
-Run the setup script to authenticate with Google Calendar:
+Run the setup scripts to authenticate with Google Calendar and Gmail:
 
+For Calendar:
 ```bash
 python setup_calendar_auth.py
 ```
 
-This will:
+For Gmail:
+```bash
+python setup_gmail_auth.py
+```
+
+These scripts will:
 1. Start the OAuth 2.0 authorization flow
 2. Open your browser to authorize the application
-3. Save the access token securely for future use
-4. Test the connection to your Google Calendar
+3. Save the access tokens securely for future use
+4. Test the connections to your Google Calendar and Gmail
 
 ## Working with Multiple Calendars
 
@@ -105,6 +128,20 @@ Once set up, you can interact with your Google Calendar through the voice assist
 - "Delete my 3 PM meeting today"
 - "Reschedule my meeting with Sarah to Thursday at 11 AM"
 - "Change the title of my dentist appointment to 'Dental Cleaning'"
+
+## Using the Gmail Integration
+
+Once set up, you can interact with your Gmail through the voice assistant:
+
+### Examples:
+
+- "Send an email to Jane about the meeting"
+- "What's new in my inbox?"
+- "Read my latest email from John"
+- "Search for emails from last week"
+- "Show me emails with attachments"
+- "Delete the email from the spam folder"
+- "Move the email from Mom to the Family folder"
 
 ## Running the Application
 
@@ -155,4 +192,4 @@ If you encounter issues installing the required packages:
 
 - The OAuth token is stored securely in your user directory
 - Never share your `credentials.json` file or the generated token
-- The application only requests the minimum permissions needed for calendar operations
+- The application only requests the minimum permissions needed for calendar and email operations
