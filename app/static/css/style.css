@@ -3,7 +3,7 @@
 :root {
   /* Primary Colors */
   --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --secondary-gradient: linear-gradient(135deg, #FE9602 0%, #c17000 100%);
   --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
     /* State Colors */
   --idle-color: #667eea;
@@ -538,8 +538,8 @@ body::before {
   height: 50px;
   border: none;
   border-radius: 50%;
-  background: var(--primary-gradient);
-  color: white;
+  background: var(--secondary-gradient);
+  color: rgb(255, 255, 255);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -550,7 +550,7 @@ body::before {
 
 .send-button:hover:not(:disabled) {
   transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 20px rgba(234, 181, 102, 0.4);
 }
 
 .send-button:disabled {
