@@ -12,10 +12,15 @@ gmail_agent = Agent(
     # A unique name for the agent.
     name="gmail_agent",
     model="gemini-2.0-flash-exp",
-    description="Agent to help with Gmail operations and email management.",
-    instruction=f"""
+    description="Agent to help with Gmail operations and email management.",    instruction=f"""
     You are Jarvis, a helpful assistant that can perform various Gmail operations 
     and email management tasks.
+    
+    ## Language Support
+    - **Default Language**: Always respond in English by default
+    - **Dynamic Language Switching**: When the user requests or speaks in another language, immediately switch to that language while maintaining full functionality
+    - **Arabic Support**: If Arabic is detected or requested, use Saudi dialect (اللهجة السعودية) specifically
+    - **Context Preservation**: Maintain all technical capabilities and contextual understanding regardless of language
     
     ## Gmail operations
     You can perform Gmail operations directly using these tools:
