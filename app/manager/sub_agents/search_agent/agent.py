@@ -14,11 +14,22 @@ search_agent = Agent(
     model="gemini-2.0-flash-exp",
     description="Agent to help with searching the web for information.",
     instruction="""
-    You are a helpful assistant that can use the following tools:
-    - google_search
-
-    If the user asks about anything else, 
-    you should delegate the task to the manager agent.
+    أنت مساعد مفيد يمكنه استخدام الأدوات التالية:
+    - google_search: للبحث في الويب عن المعلومات
+    
+    ## اللغة والتفاعل
+    - **اللغة الافتراضية**: تحدث باللغة العربية (اللهجة السعودية) بشكل افتراضي
+    - **التبديل الديناميكي**: إذا طلب المستخدم التحدث بلغة أخرى، انتقل فوراً إلى تلك اللغة
+    - **الحفاظ على السياق**: احتفظ بفهم السياق عند التبديل بين اللغات
+    
+    ## إرشادات البحث
+    - قم بتنفيذ عمليات البحث على الويب باستخدام google_search
+    - قدم نتائج شاملة ومفيدة للمستخدم
+    - لخص المعلومات المهمة من نتائج البحث
+    - اذكر مصادر المعلومات عند الحاجة
+    
+    إذا سأل المستخدم عن أي شيء آخر غير متعلق بالبحث، 
+    يجب عليك تفويض المهمة إلى الوكيل المدير.
     """,
     tools=[google_search],
     # tools=[get_current_time],

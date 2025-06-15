@@ -52,10 +52,10 @@ class BlobStateManager {
   constructor() {
     this.currentState = 'idle';
     this.stateTexts = {
-      idle: 'Ready to help',
-      listening: 'I\'m listening...',
-      speaking: 'Alyssa is speaking...',
-      thinking: 'Thinking...'
+      idle: 'جاهز للمساعدة',
+      listening: 'أستمع إليك...',
+      speaking: 'أليسا تتحدث...',
+      thinking: 'أفكر...'
     };
   }
 
@@ -255,7 +255,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Initialize connection status
   statusDot.classList.add("connecting");
-  connectionStatus.textContent = "Connecting...";
+  connectionStatus.textContent = "جاري الاتصال...";
   blobState.setState('idle');
   
   // Wait for SiriWave library to load and then initialize Textillate
@@ -321,7 +321,7 @@ function connectWebsocket() {
   websocket.onopen = function () {
     // Connection opened messages
     console.log("WebSocket connection opened.");
-    connectionStatus.textContent = "Connected";
+    connectionStatus.textContent = "متصل";
     statusDot.classList.remove("connecting");
     statusDot.classList.add("connected");
 
@@ -464,7 +464,7 @@ function connectWebsocket() {
   websocket.onclose = function () {
     console.log("WebSocket connection closed.");
     document.getElementById("sendButton").disabled = true;
-    connectionStatus.textContent = "Disconnected. Reconnecting...";
+    connectionStatus.textContent = "منقطع. جاري إعادة الاتصال...";
     statusDot.classList.remove("connected");
     statusDot.classList.add("connecting");
     typingIndicator.classList.remove("visible");
@@ -480,7 +480,7 @@ function connectWebsocket() {
 
   websocket.onerror = function (e) {
     console.log("WebSocket error: ", e);
-    connectionStatus.textContent = "Connection error";
+    connectionStatus.textContent = "خطأ في الاتصال";
     statusDot.classList.remove("connected");
     statusDot.classList.add("disconnected");
     typingIndicator.classList.remove("visible");
