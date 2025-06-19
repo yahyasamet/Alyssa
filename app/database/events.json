@@ -1,0 +1,26 @@
+[
+  {
+    "eventId": "EVENT_001",
+    "type": "maintenance",
+    "title": "Zone 5 Maintenance",
+    "description": "Network infrastructure upgrade",
+    "zoneId": "Zone 5",
+    "status": "in_progress"
+  },
+  {
+    "eventId": "EVENT_002",
+    "type": "maintenance", 
+    "title": "Zone 4 Maintenance",
+    "description": "Scheduled maintenance window",
+    "zoneId": "Zone 4",
+    "status": "upcoming"
+  },
+  {
+    "eventId": "EVENT_003",
+    "type": "outage",
+    "title": "Zone 4 Outage",
+    "description": "Fiber cable cut during construction",
+    "zoneId": "Zone 4", 
+    "status": "in_progress"
+  }
+]

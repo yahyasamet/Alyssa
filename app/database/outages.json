@@ -1,0 +1,20 @@
+[
+  {
+    "outageId": "OUTAGE_001",
+    "zoneId": "Zone 4",
+    "cause": "Fiber cable cut during construction work",
+    "status": "in_progress"
+  },
+  {
+    "outageId": "OUTAGE_002", 
+    "zoneId": "Zone 5",
+    "cause": "Scheduled maintenance upgrade",
+    "status": "in_progress"
+  },
+  {
+    "outageId": "OUTAGE_003",
+    "zoneId": "Zone 3",
+    "cause": "Power outage at distribution center", 
+    "status": "resolved"
+  }
+]

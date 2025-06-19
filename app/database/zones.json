@@ -1,0 +1,38 @@
+[
+  {
+    "zoneId": "Zone 1",
+    "status": "operational",
+    "maxSpeed": 200,
+    "technicianAssigned": "tech_001"
+  },
+  {
+    "zoneId": "Zone 2", 
+    "status": "operational",
+    "maxSpeed": 100,
+    "technicianAssigned": "tech_002"
+  },
+  {
+    "zoneId": "Zone 3",
+    "status": "operational", 
+    "maxSpeed": 50,
+    "technicianAssigned": "tech_003"
+  },
+  {
+    "zoneId": "Zone 4",
+    "status": "outage",
+    "maxSpeed": 100,
+    "technicianAssigned": "tech_004"
+  },
+  {
+    "zoneId": "Zone 5",
+    "status": "under_maintenance",
+    "maxSpeed": 200,
+    "technicianAssigned": "tech_005"
+  },
+  {
+    "zoneId": "Zone 6",
+    "status": "operational",
+    "maxSpeed": 20,
+    "technicianAssigned": "tech_006"
+  }
+]

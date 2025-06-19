@@ -1,0 +1,39 @@
+[
+  {
+    "invoiceId": "INV_1001",
+    "userId": "abc123",
+    "planId": "fiber_100",
+    "dueDate": "2025-06-30T23:59:59Z",
+    "status": "unpaid"
+  },
+  {
+    "invoiceId": "INV_1002",
+    "userId": "def456",
+    "planId": "standard_50",
+    "dueDate": "2025-06-25T23:59:59Z",
+    "status": "paid",
+    "paidAt": "2025-06-20T10:30:00Z"
+  },
+  {
+    "invoiceId": "INV_1003",
+    "userId": "ghi789",
+    "planId": "basic_20",
+    "dueDate": "2025-06-15T23:59:59Z",
+    "status": "overdue"
+  },
+  {
+    "invoiceId": "INV_1004",
+    "userId": "jkl012",
+    "planId": "fiber_200",
+    "dueDate": "2025-07-05T23:59:59Z",
+    "status": "unpaid"
+  },
+  {
+    "invoiceId": "INV_1005",
+    "userId": "mno345",
+    "planId": "fiber_100",
+    "dueDate": "2025-06-28T23:59:59Z",
+    "status": "paid",
+    "paidAt": "2025-06-18T15:45:00Z"
+  }
+]
