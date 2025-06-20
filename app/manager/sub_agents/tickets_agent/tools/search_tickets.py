@@ -3,15 +3,13 @@ Search tickets tool for Firestore integration.
 """
 from .tickets_utils import get_firestore_client, serialize_firestore_value
 
-def search_tickets(field: str, value: str, limit: int) -> dict:
+def search_tickets(field: str, value: str) -> dict:
     """
     Search tickets in the Firestore tickets collection by a specific field and value.
 
     Args:
         field (str): The field to search by (e.g., 'status', 'priority', 'userId', 'category').
         value (str): The value to search for.
-        limit (int): Maximum number of tickets to return.
-
     Returns:
         dict: A list of matching tickets or an error message.
     """
@@ -20,7 +18,7 @@ def search_tickets(field: str, value: str, limit: int) -> dict:
         if not db:
             return {"status": "error", "message": "Failed to connect to Firestore."}
 
-        query = db.collection('tickets').where(field, '==', value).limit(limit)
+        query = db.collection('tickets').where(field, '==', value)
         docs = query.stream()
 
         tickets = []

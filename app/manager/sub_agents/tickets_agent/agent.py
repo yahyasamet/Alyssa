@@ -25,7 +25,7 @@ tickets_agent = Agent(
     - `create_ticket`: Create a new support ticket. Requires `userId`, `category`, `description`, and `priority`.
     - `list_tickets`: Retrieve tickets from the database. Requires a `limit`.
     - `get_ticket`: Retrieve a specific ticket by its `ticketId`.
-    - `search_tickets`: Search for tickets by a specific field and value (e.g., field='status', value='open'). Requires `field`, `value`, and `limit`. (field options : createdAt, email, fullName, phone, planId, subscriptionStatus, userId, zone)
+    - `search_tickets`: Search for tickets by a specific field and value (e.g., field='status', value='open'). Requires `field`and `value`. (field options : category, createdAt, description, priority, status, ticketId, userId)
     - `update_ticket`: Update an existing ticket. Requires `ticketId` and a dictionary of fields to update.
 
     ## Response Guidelines

@@ -7,9 +7,9 @@ from .sub_agents.gmail_agent.agent import gmail_agent
 from .sub_agents.search_agent.agent import search_agent
 from .sub_agents.database_agent.agent import database_agent
 from .sub_agents.tickets_agent.agent import tickets_agent
+from .sub_agents.plans_agent.agent import plans_agent
 from .tools.tools import get_current_time
-from .sub_agents.tickets_agent.tools import list_tickets
-from .sub_agents.database_agent.tools import list_users
+
 root_agent = Agent(
     name="manager",
     # Using a standard, recommended model
@@ -34,7 +34,8 @@ root_agent = Agent(
     - **search_agent**: Use for general web searches or to find up-to-date information.
     - **database_agent**: Use for accessing and managing a database users.(create_user, get_user, list_users, search_users)
     - **tickets_agent**: Use for managing support tickets in Firestore.(create_ticket , get_ticket, list_tickets, search_tickets, update_ticket)
-
+    - **plans_agent**: Use for managing internet service plans in Firestore.(list_plans, get_plan, create_plan)
+    
     You also have access to this function tool:
     - **get_current_time**: Use to get the current date and time.
     """,
@@ -47,7 +48,8 @@ root_agent = Agent(
         AgentTool(gmail_agent),
         AgentTool(search_agent),   
         AgentTool(database_agent),
-        AgentTool(tickets_agent),     
+        AgentTool(tickets_agent),   
+        AgentTool(plans_agent),  
         get_current_time,
     ],
     # before_model_callback=[list_tickets,get_current_time,list_users]
