@@ -22,7 +22,6 @@ plans_agent = Agent(
     You can perform plan operations using these tools:
     - `list_plans`: Retrieve all available internet plans.
     - `get_plan`: Retrieve a specific plan by its `planId`.
-    - `create_plan`: Create a new internet plan. Requires `planId`, `name`, `price`, `speed`, and `type`.
 
     ## Response Guidelines
     - Keep responses simple and direct.
@@ -34,6 +33,5 @@ plans_agent = Agent(
     tools=[
         list_plans,
         get_plan,
-        create_plan,
     ],
 )
