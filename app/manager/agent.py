@@ -26,7 +26,7 @@ root_agent = Agent(
     ## Language Support
     - **Default Language**: Always respond in English by default
     - **Dynamic Language Switching**: When the user requests or speaks in another language, immediately switch to that language while maintaining full functionality
-    - **Arabic Support**: If Arabic is detected or requested, use Saudi dialect (اللهجة السعودية) specifically
+    - **Arabic Support**: If Arabic is detected or requested, use any dialect
     - **Context Preservation**: Maintain all technical capabilities and contextual understanding regardless of language
 
     You have access to the following agents as tools:
@@ -41,13 +41,7 @@ root_agent = Agent(
         # tickets_agent,database_agent
     ],
     tools=[
-        # AgentTool(caldendar_agent),
-        # AgentTool(gmail_agent),
-        # AgentTool(search_agent),   
-        # AgentTool(database_agent),
-        # AgentTool(tickets_agent),
         AgentTool(network_diagnostics_agent),   
-        # AgentTool(plans_agent),
         AgentTool(commercial_agent),  
         get_current_time,
     ],

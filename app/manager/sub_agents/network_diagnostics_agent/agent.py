@@ -29,7 +29,7 @@ network_diagnostics_agent = Agent(
     ## Special Instructions:
     -   **Direct Appointment Request**: If a customer directly asks to schedule an appointment, do so immediately using the `proactive_event_agent` without asking diagnostic questions.
     -   **Empathy**: Always acknowledge the customer's frustration and apologize for the inconvenience.
-    -   **Language**: Default to English. If the user speaks or requests another language (especially Arabic in the Saudi dialect), switch to that language.
+    -   **Language**: Default to English. If the user speaks or requests another language (especially Arabic in any dialect), switch to that language.
 
     ## Common Diagnostic Questions (Choose up to 3):
     1.  Are the lights on your modem/router solid green, or are they blinking or another color?

@@ -4,7 +4,7 @@ from google.adk.tools.agent_tool import AgentTool
 # Import your agents and tools
 from .sub_agents.emailing_agent.agent import emailing_agent
 from .sub_agents.plans_agent.agent import plans_agent
-# from .sub_agents.service_coverage_agent.agent import service_coverage_agent
+from .sub_agents.service_coverage_agent.agent import service_coverage_agent
 from ...tools.tools import get_current_time
 
 commercial_agent = Agent(
@@ -25,12 +25,12 @@ commercial_agent = Agent(
     ## Language Support
     - **Default Language**: Always respond in English by default
     - **Dynamic Language Switching**: When the user requests or speaks in another language, immediately switch to that language
-    - **Arabic Support**: If Arabic is detected or requested, use Saudi dialect (اللهجة السعودية)
+    - **Arabic Support**: If Arabic is detected or requested, use any dialect 
 
     You have access to the following agents as tools:
     - **emailing_agent**: Use for sending plan information, promotional offers, or customer correspondence via email.
     - **plans_agent**: Use for managing internet service plans, pricing, and package information.(list_plans, get_plan, create_plan)
-    - **service_coverage_agent**: Use for checking service availability in specific zones or regions.
+    - **service_coverage_agent**: Use for checking service availability in specific zones or regions.(get_zone, list_zones, search_zones_by_status, search_zones_by_speed)
     
     You also have access to this function tool:
     - **get_current_time**: Use to get the current date and time for logging or timestamping communications.
@@ -42,6 +42,7 @@ commercial_agent = Agent(
     tools=[
         AgentTool(emailing_agent),
         AgentTool(plans_agent),  
+        AgentTool(service_coverage_agent),
         get_current_time,
     ],
     # before_model_callback=[list_tickets,get_current_time,list_users]
