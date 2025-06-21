@@ -3,14 +3,14 @@
 :root {
   /* Primary Colors */
   --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --secondary-gradient: linear-gradient(135deg, #FE9602 0%, #c17000 100%);
+  --secondary-gradient: linear-gradient(135deg, #0267fe 0%, #764ba2 100%);
   --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
     /* State Colors */
   --idle-color: #667eea;
-  --listening-color: #FE9602;
+  --listening-color: #b202fe;
   --speaking-color: #00f2fe;
   --success-color: #4ecdc4;
-  --warning-color: #ffe066;
+  --warning-color: #b202fe;
   
   /* UI Colors */
   --bg-primary: #0f0f23;
@@ -255,20 +255,20 @@ body::before {
 }
 
 .voice-blob.listening .square span:nth-child(1) {
-  background-image: radial-gradient(#FE960200 50%, #FE96023b 40%);
-  box-shadow: 0 0 60px #FE9602, inset 0 0 60px #FE9602;
+  background-image: radial-gradient(#9d02fe00 50%, #9d02fe00 40%);
+  box-shadow: 0 0 60px var(--listening-color), inset 0 0 60px var(--listening-color);
   animation: animate1 2s linear infinite;
 }
 
 .voice-blob.listening .square span:nth-child(2) {
-  background-image: radial-gradient(#FE960200 50%, #FE96023b 40%);
-  box-shadow: 0 0 60px #FE9602, inset 0 0 60px #FE9602;
+  background-image: radial-gradient(#9d02fe00 50%, #9d02fe00 40%);
+  box-shadow: 0 0 60px var(--listening-color), inset 0 0 60px var(--listening-color);
   animation: animate2 1.5s linear infinite;
 }
 
 .voice-blob.listening .square span:nth-child(3) {
-  background-image: radial-gradient(#FE960200 50%, #FE96023b 40%);
-  box-shadow: 0 0 60px #FE9602, inset 0 0 60px #FE9602;
+  background-image: radial-gradient(#9d02fe00 50%, #9d02fe00 40%);
+  box-shadow: 0 0 60px var(--listening-color), inset 0 0 60px var(--listening-color);
   animation: animate3 3s linear infinite;
 }
 
@@ -291,20 +291,20 @@ body::before {
 }
 
 .voice-blob.thinking .square span:nth-child(1) {
-  background-image: radial-gradient(#ffe06600 50%, #ffe0663b 40%);
-  box-shadow: 0 0 50px #ffe066, inset 0 0 50px #ffe066;
+  background-image: radial-gradient(#9d02fe00 50%, #9d02fe00 40%);
+  box-shadow: 0 0 50px var(--listening-color), inset 0 0 50px var(--listening-color);
   animation: animate1 3s linear infinite;
 }
 
 .voice-blob.thinking .square span:nth-child(2) {
-  background-image: radial-gradient(#ffe06600 50%, #ffe0663b 40%);
-  box-shadow: 0 0 50px #ffe066, inset 0 0 50px #ffe066;
+  background-image: radial-gradient(#9d02fe00 50%, #9d02fe00 40%);
+  box-shadow: 0 0 50px var(--listening-color), inset 0 0 50px var(--listening-color);
   animation: animate2 2.5s linear infinite;
 }
 
 .voice-blob.thinking .square span:nth-child(3) {
-  background-image: radial-gradient(#ffe06600 50%, #ffe0663b 40%);
-  box-shadow: 0 0 50px #ffe066, inset 0 0 50px #ffe066;
+  background-image: radial-gradient(#9d02fe00 50%, #9d02fe00 40%);
+  box-shadow: 0 0 50px var(--listening-color), inset 0 0 50px var(--listening-color);
   animation: animate3 4s linear infinite;
 }
 
@@ -550,7 +550,7 @@ body::before {
 
 .send-button:hover:not(:disabled) {
   transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(234, 181, 102, 0.4);
+  box-shadow: 0 6px 20px rgba(102, 161, 234, 0.4);
 }
 
 .send-button:disabled {
