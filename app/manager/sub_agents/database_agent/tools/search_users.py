@@ -2,95 +2,79 @@
 Search users tool for Firestore integration.
 """
 
-from .database_utils import get_firestore_client, serialize_firestore_value
+from .database_utils import db, serialize_firestore_value
 
 
-def search_users(field: str, value: str, limit: int = 50) -> dict:
+def search_users(query: str, field: str, limit: int = 10) -> dict:
     """
-    Search users in the Firestore users collection by a specific field and value.
+    Search users in the Firestore users collection.
 
     Args:
-        field (str): The field name to search by (e.g., 'email', 'name', 'status').
-        value (str): The value to search for.
-        limit (int): Maximum number of users to retrieve. Defaults to 50.
+        query (str, optional): Search term to filter users
+        field (str, optional): Specific field to search in ("fullName", "email", "phone", "zone", "planId", "subscriptionStatus", etc.). If None, searches all fields
+        limit (int): Maximum number of users to return (default: 10)
 
     Returns:
-        dict: Information about matching users or error details
+        dict: List of users matching the search criteria
     """
     try:
-        print(f"Searching users by {field} = {value} with limit: {limit}")
+        print(f"Searching users with query: {query}, field: {field}, limit: {limit}")
         
-        if not field or not field.strip():
-            return {
-                "status": "error",
-                "message": "Field name is required and cannot be empty.",
-                "users": [],
-            }
-            
-        if not value or not value.strip():
-            return {
-                "status": "error",
-                "message": "Search value is required and cannot be empty.",
-                "users": [],
-            }
-        
-        # Get Firestore client
-        db = get_firestore_client()
-        if not db:
-            return {
-                "status": "error",
-                "message": "Failed to connect to Firestore. Please check credentials.",
-                "users": [],
-            }
-
-        # Query users collection with field filter
+        # Get users collection reference
         users_ref = db.collection('users')
         
-        # Apply field filter
-        query = users_ref.where(field.strip(), '==', value.strip())
-        
-        # Apply limit
-        if limit > 0:
-            docs = query.limit(limit).stream()
+        # If no query provided, get all users (limited)
+        if not query:
+            docs = users_ref.limit(limit).stream()
         else:
-            docs = query.stream()
-
-        # Process documents
+            # Search by specified field or all fields (case-insensitive)
+            query_lower = query.lower()
+            docs = users_ref.limit(limit).stream()
+        
         users = []
-        count = 0
         for doc in docs:
-            doc_data = doc.to_dict()
-            if doc_data:
-                # Serialize Firestore values
-                serialized_data = serialize_firestore_value(doc_data)
+            if doc.exists:
+                doc_data = doc.to_dict()
                 
-                user_info = {
+                # If query provided, filter results
+                if query:
+                    match_found = False
+                    
+                    if field:
+                        # Search in specific field
+                        field_value = str(doc_data.get(field, '')).lower()
+                        if query_lower in field_value:
+                            match_found = True
+                    else:
+                        # Search in common fields based on your data structure
+                        searchable_fields = ['fullName', 'email', 'phone', 'zone', 'planId', 'subscriptionStatus', 'userId']
+                        for search_field in searchable_fields:
+                            field_value = str(doc_data.get(search_field, '')).lower()
+                            if query_lower in field_value:
+                                match_found = True
+                                break
+                    
+                    if not match_found:
+                        continue
+                
+                doc_data = {k: serialize_firestore_value(v) for k, v in doc_data.items()}
+                users.append({
                     "id": doc.id,
-                    "data": serialized_data
-                }
-                users.append(user_info)
-                count += 1
-
-        if count == 0:
-            return {
-                "status": "success",
-                "message": f"No users found with {field} = '{value}'.",
-                "users": [],
-                "count": 0
-            }
-
+                    "data": doc_data
+                })
+        
         return {
             "status": "success",
-            "message": f"Successfully found {count} users with {field} = '{value}'.",
+            "message": f"Found {len(users)} users",
             "users": users,
-            "count": count
+            "total": len(users)
         }
 
     except Exception as e:
-        error_message = f"Error searching users by {field} = '{value}': {str(e)}"
-        print(error_message)
         return {
             "status": "error",
-            "message": error_message,
+            "message": f"Error searching users: {str(e)}",
             "users": [],
+            "total": 0
         }
+        

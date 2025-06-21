@@ -15,6 +15,19 @@ cred = credentials.Certificate(service_account_path)
 initialize_app(cred)
 db = firestore.client()
 
+def get_firestore_client():
+    """
+    Get the Firestore client instance.
+    
+    Returns:
+        firestore.Client: The Firestore client or None if initialization fails
+    """
+    try:
+        return db
+    except Exception as e:
+        print(f"Error getting Firestore client: {str(e)}")
+        return None
+
 def serialize_firestore_value(value):
     """Convert Firestore native types to readable strings"""
     if isinstance(value, datetime):

@@ -5,16 +5,22 @@ from google.adk.tools.agent_tool import AgentTool
 from .sub_agents.caldendar_agent.agent import caldendar_agent
 from .sub_agents.gmail_agent.agent import gmail_agent
 from .sub_agents.search_agent.agent import search_agent
+from .sub_agents.database_agent.agent import database_agent
+from .sub_agents.tickets_agent.agent import tickets_agent
+from .sub_agents.plans_agent.agent import plans_agent
 from .tools.tools import get_current_time
 
 root_agent = Agent(
     name="manager",
     # Using a standard, recommended model
     model="gemini-2.0-flash-exp",
-    description="A manager agent that delegates tasks to other agents and tools.",
+    description="you are the internet Asistant",
     instruction="""
     You are a manager agent responsible for overseeing the work of other agents.
-    Your job is to understand the user's request and delegate the task to the appropriate agent or tool.
+    Your job is to understand the user's request and delegate the task to the appropriate agents or tools.
+    you orchestrates the tasks in a way that ensures the most efficient use of resources and time.
+    you create the workflow and cordinate the work between the agents and tools to achieve the best results and with limiting the interaction with user only when needed .
+
 
     ## Language Support
     - **Default Language**: Always respond in English by default
@@ -26,21 +32,28 @@ root_agent = Agent(
     - **caldendar_agent**: Use for any tasks related to creating, finding, or managing calendar events.
     - **gmail_agent**: Use for any tasks related to sending, reading, searching, or managing Gmail emails.
     - **search_agent**: Use for general web searches or to find up-to-date information.
-
+    - **database_agent**: Use for accessing and managing a database users.(create_user, get_user, list_users, search_users)
+    - **tickets_agent**: Use for managing support tickets in Firestore.(create_ticket , get_ticket, list_tickets, search_tickets, update_ticket)
+    - **plans_agent**: Use for managing internet service plans in Firestore.(list_plans, get_plan, create_plan)
+    
     You also have access to this function tool:
     - **get_current_time**: Use to get the current date and time.
     """,
     # All sub-agents and functions are provided in the 'tools' list
     sub_agents=[
+        # tickets_agent,database_agent
     ],
     tools=[
         AgentTool(caldendar_agent),
         AgentTool(gmail_agent),
-        AgentTool(search_agent),
+        AgentTool(search_agent),   
+        AgentTool(database_agent),
+        AgentTool(tickets_agent),   
+        AgentTool(plans_agent),  
         get_current_time,
     ],
+    # before_model_callback=[list_tickets,get_current_time,list_users]
 )
-
 # from google.adk.agents import Agent
 # from google.adk.tools.agent_tool import AgentTool
 
