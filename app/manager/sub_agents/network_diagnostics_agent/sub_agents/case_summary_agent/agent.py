@@ -1,5 +1,5 @@
 from google.adk.agents import Agent
-
+from .tools import get_chat_history
 case_summary_agent = Agent(
     # A unique name for the agent.
     name="case_summary_agent",
@@ -7,9 +7,12 @@ case_summary_agent = Agent(
     description="Agent that summarizes a conversation.",
     instruction="""
     You are a helpful assistant that summarizes the conversation provided.
+    Use the get_chat_history tool to retrieve the conversation.
     Your goal is to create a concise summary of the key points, decisions, and action items from the conversation.
     Do not add any information that was not in the original conversation.
     Keep the summary brief and to the point.
     """,
-    tools=[],
+    tools=[
+        get_chat_history,
+    ],
 )
