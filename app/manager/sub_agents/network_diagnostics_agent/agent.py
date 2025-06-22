@@ -4,6 +4,7 @@ from google.adk.tools.agent_tool import AgentTool
 # Import your agents and tools
 from .sub_agents.proactive_event_agent.agent import proactive_event_agent
 from .sub_agents.invoice_agent.agent import invoice_agent
+from .sub_agents.tickets_agent.agent import tickets_agent
 from ..commercial_agent.sub_agents.emailing_agent.agent import emailing_agent
 # from .sub_agents.service_coverage_agent.agent import service_coverage_agent
 from ...tools.tools import get_current_time
@@ -19,8 +20,9 @@ network_diagnostics_agent = Agent(
 
     Follow this process strictly:
 
-    1.  **Initial Diagnosis (Max 3 Questions)**:
-        -   Start by asking up to three targeted diagnostic questions to understand the problem.
+    1.  **Initial Diagnosis**:
+        -   Start by checking the customer's invoice status using the `invoice_agent`. If the customer has an unpaid invoice, inform them that this may affect their service.
+        -   Ask up to three targeted diagnostic questions to understand the problem.
         -   Maintain a calm and empathetic tone, especially if the customer is frustrated.
 
     2.  **Escalation**:
@@ -43,6 +45,7 @@ network_diagnostics_agent = Agent(
     -   **emailing_agent**: Use this to send emails to customers, for example, to confirm an appointment.
     -   **get_current_time**: Use this to get the current time for logging purposes.
     -   **invoice_agent**: Use this to check if the customer has any outstanding invoices that might affect their service.
+    -   **tickets_agent**: Use this to create and manage support tickets for customer issues.
     """,
     # All sub-agents and functions are provided in the 'tools' list
     sub_agents=[

@@ -2,11 +2,8 @@ from google.adk.agents import Agent
 from google.adk.tools.agent_tool import AgentTool
 
 # Import your agents and tools
-from .sub_agents.caldendar_agent.agent import caldendar_agent
-from .sub_agents.gmail_agent.agent import gmail_agent
 from .sub_agents.search_agent.agent import search_agent
 from .sub_agents.database_agent.agent import database_agent
-from .sub_agents.tickets_agent.agent import tickets_agent
 from .sub_agents.commercial_agent.agent import commercial_agent
 from .sub_agents.network_diagnostics_agent.agent import network_diagnostics_agent
 from .sub_agents.case_summary_agent.agent import case_summary_agent
@@ -38,7 +35,7 @@ root_agent = Agent(
 
     You have access to the following agents as tools:
     - **commercial_agent**: provide plans information, promotional offers.(you have access to a emailing_agent to send emails and communicate with customers also you have access to a plans_agent to manage internet service plans, pricing, and package information.)
-    - **network_diagnostics_agent**: Use for network diagnostics and troubleshooting for resolving internet connection issues (sub_agents: **proactive_event_agent**: Use to schedule appointments with technical experts (human) when advanced technical support is needed, **emailing_agent**: Use to confirm the scheduling by sending an email to the user. **invoice_agent**: Use to check if the customer has any outstanding invoices that might affect their service.).
+    - **network_diagnostics_agent**: Use for network diagnostics and troubleshooting for resolving internet connection issues (sub_agents: **proactive_event_agent**: Use to schedule appointments with technical experts (human) when advanced technical support is needed, **emailing_agent**: Use to confirm the scheduling by sending an email to the user. **invoice_agent**: Use to check if the customer has any outstanding invoices that might affect their service., **tickets_agent**: Use to create and manage support tickets for customer issues.)
     - **database_agent**: Use for database management tasks, such as retrieving or updating user information and handling new subscriptions. Always use the client ID when provided to ensure accurate data retrieval.
     Before calling any agent make sure to use the **case_summary_agent** to summarize the conversation and provide a clear context for the task at hand.
     You also have access to this function tool:
