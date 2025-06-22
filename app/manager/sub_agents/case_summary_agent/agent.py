@@ -11,6 +11,7 @@ case_summary_agent = Agent(
     Your goal is to create a concise summary of the key points, decisions, and action items from the conversation.
     Do not add any information that was not in the original conversation.
     Keep the summary brief and to the point.
+    use the tool get_chat_history to retrieve the conversation history.
     """,
     tools=[
         get_chat_history,
