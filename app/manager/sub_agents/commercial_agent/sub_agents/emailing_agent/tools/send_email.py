@@ -94,7 +94,7 @@ def create_html_template(body: str, email_type: str = "general") -> str:
                         <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: {colors['glass_bg']}; backdrop-filter: blur(20px); border: 1px solid {colors['glass_border']};"></div>
                         <div style="position: relative; z-index: 2;">
                             <h1 style="color: {colors['text_primary']}; margin: 0; font-size: 2.5rem; font-weight: 700; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);">Alyssa</h1>
-                            <p style="color: {colors['text_secondary']}; margin: 10px 0 0 0; font-size: 1rem; font-weight: 300;">Your AI Voice Assistant</p>
+                            <p style="color: {colors['text_secondary']}; margin: 10px 0 0 0; font-size: 1rem; font-weight: 300;">Your Agentic AI Voice Assistant</p>
                         </div>
                     </td>
                 </tr>
@@ -119,10 +119,10 @@ def create_html_template(body: str, email_type: str = "general") -> str:
                         <div style="background: {colors['glass_bg']}; border: 1px solid {colors['glass_border']}; backdrop-filter: blur(10px); border-radius: 12px; padding: 20px;">
                             <p style="margin: 0; color: {colors['text_secondary']}; font-size: 14px; font-weight: 500;">
                                 <strong style="color: {colors['text_primary']};">Need Support?</strong><br>
-                                📞 1-800-ALYSSA-1 | 📧 support@alyssa-ai.com
+                                📞 1-800-ALYSSA-1 | 📧 cognipath.ai@gmail.com
                             </p>
                             <p style="margin: 15px 0 0 0; color: rgba(255, 255, 255, 0.5); font-size: 12px;">
-                                © 2024 Alyssa AI Assistant. Connecting you to the future.
+                                © 2025 Alyssa AI Assistant. Connecting you to the future.
                             </p>
                         </div>
                     </td>
