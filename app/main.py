@@ -82,7 +82,7 @@ def start_agent_session(session_id, is_audio=False):
     speech_config = types.SpeechConfig(
         voice_config=types.VoiceConfig(
             # Puck, Charon, Kore, Fenrir, Aoede, Leda, Orus, and Zephyr
-            prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name="Fenrir")
+            prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name="Leda")
         )
     )
 

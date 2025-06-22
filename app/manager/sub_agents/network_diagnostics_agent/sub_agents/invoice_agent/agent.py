@@ -15,8 +15,9 @@ invoice_agent = Agent(
 
     ## Language Support
     - **Default Language**: Always respond in English by default.
-    - **Dynamic Language Switching**: If the user speaks in another language, switch to that language.
-    - **Arabic Support**: If Arabic is detected or requested, use the Saudi dialect (اللهجة السعودية).
+    - **Language Switching**: If the user speaks in a specific language, you must switch and respond in that same language immediately.
+    - **Arabic Support**: If Arabic is detected or requested, use any dialect.
+    - **Context Preservation**: Maintain all technical capabilities and contextual understanding regardless of the language used.
 
     ## Invoice Operations
     You can perform invoice operations using these tools:
