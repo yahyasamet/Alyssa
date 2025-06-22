@@ -3,6 +3,7 @@ from google.adk.tools.agent_tool import AgentTool
 
 # Import your agents and tools
 from .sub_agents.proactive_event_agent.agent import proactive_event_agent
+from .sub_agents.invoice_agent.agent import invoice_agent
 from ..commercial_agent.sub_agents.emailing_agent.agent import emailing_agent
 # from .sub_agents.service_coverage_agent.agent import service_coverage_agent
 from ...tools.tools import get_current_time
@@ -41,6 +42,7 @@ network_diagnostics_agent = Agent(
     -   **proactive_event_agent**: Use this to escalate to a human expert or to schedule appointments.
     -   **emailing_agent**: Use this to send emails to customers, for example, to confirm an appointment.
     -   **get_current_time**: Use this to get the current time for logging purposes.
+    -   **invoice_agent**: Use this to check if the customer has any outstanding invoices that might affect their service.
     """,
     # All sub-agents and functions are provided in the 'tools' list
     sub_agents=[
@@ -49,6 +51,7 @@ network_diagnostics_agent = Agent(
     tools=[
         AgentTool(proactive_event_agent),
         AgentTool(emailing_agent),
+        AgentTool(invoice_agent),
         get_current_time,
     ],
     # before_model_callback=[list_tickets,get_current_time,list_users]

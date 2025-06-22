@@ -111,6 +111,7 @@ async def agent_to_client_messaging(
     websocket: WebSocket, live_events: AsyncIterable[Event | None], session_id: str
 ):
     """Agent to client communication"""
+    Assistant_response = ""  # Initialize the response accumulator
     while True:
         async for event in live_events:
             if event is None:
@@ -137,6 +138,12 @@ async def agent_to_client_messaging(
 
             # Only send text if it's a partial response (streaming)
             # Skip the final complete message to avoid duplication
+            if part.text:
+                Assistant_response += part.text
+                # Only log when the response is complete (not partial)
+                if not event.partial:
+                    log_conversation(session_id, "assistant", Assistant_response, "text/plain")
+                    Assistant_response = ""  # Reset for next response
             if part.text and event.partial:
                 message = {
                     "mime_type": "text/plain",
@@ -147,7 +154,7 @@ async def agent_to_client_messaging(
                 print(f"[AGENT TO CLIENT]: text/plain: {part.text}")
                 
                 # Log the agent's text response
-                log_conversation(session_id, "assistant", part.text, "text/plain")
+                # log_conversation(session_id, "assistant", part.text, "text/plain")
 
             # If it's audio, send Base64 encoded audio data
             is_audio = (
