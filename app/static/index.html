@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alyssa - Voice Assistant</title>
+    <script src="/static/js/app.js" type="module"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    
+    <!-- SiriWave Dependencies -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/textillate/0.4.0/jquery.textillate.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script src="https://unpkg.com/siriwave/dist/siriwave.umd.min.js"></script>
+  </head>
+
+  <body>
+    <!-- Main Container -->
+    <div class="app-container">
+      <!-- Header Section -->
+      <header class="app-header">
+        <div class="brand">
+          <h1>Alyssa</h1>
+          <p class="tagline">Your Intelligent Voice Assistant</p>
+        </div>
+        
+        <!-- Connection Status -->
+        <div class="connection-status">
+          <div id="status-indicator" class="status-indicator">
+            <div id="status-dot" class="status-dot connecting"></div>
+            <span id="connection-text">Connecting...</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Interface -->
+      <div class="main-interface">
+        <!-- Blob and SiriWave Wrapper -->
+        <div class="blob-siriwave-wrapper">
+          <!-- Voice Blob Container with Oval Animation -->
+          <div class="blob-container" id="blob-container">
+            <div id="voice-blob" class="voice-blob idle">
+              <canvas id="canvasOne" width="700" height="420" style="position: absolute;"></canvas>
+              <div id="JarvisHood">
+                <div class="square">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- State Indicator -->
+            <div id="state-indicator" class="state-indicator">
+              <span id="state-text">Ready to help</span>
+            </div>
+          </div>
+
+          <!-- SiriWave Container (Hidden by default) -->
+          <div class="siriwave-container" id="siriwave-container">
+            <div class="siri-content">
+              <p class="siri-message" id="siri-message">Alyssa is speaking...</p>
+              <div id="siri-wave"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Interface -->
+        <div class="chat-interface">
+          <div id="messages" class="messages-container">
+            <div id="typing-indicator" class="typing-indicator">
+              <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <span class="typing-text">Alyssa is thinking...</span>
+            </div>
+          </div>
+          
+          <!-- Input Controls -->
+          <div class="input-section">
+            <form id="messageForm" class="message-form">
+              <div class="input-container">
+                <input 
+                  type="text" 
+                  id="message" 
+                  name="message" 
+                  placeholder="Ask me anything..." 
+                  autocomplete="off" 
+                />
+                <button type="submit" id="sendButton" class="send-button" disabled>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="currentColor"/>
+                  </svg>
+                </button>
+              </div>
+            </form>
+            
+            <!-- Voice Controls -->
+            <div class="voice-controls">
+              <button type="button" id="startAudioButton" class="voice-button start-voice">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 1C10.34 1 9 2.34 9 4V12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12V4C15 2.34 13.66 1 12 1ZM19 10V12C19 16.42 15.42 20 11 20V22H13V24H11H9V22H11V20C6.58 20 3 16.42 3 12V10H5V12C5 15.31 7.69 18 11 18V16C11 15.45 11.45 15 12 15C12.55 15 13 15.45 13 16V18C16.31 18 19 15.31 19 12V10Z" fill="currentColor"/>
+                </svg>
+                <span>Enable Voice</span>
+              </button>
+              
+              <button type="button" id="stopAudioButton" class="voice-button stop-voice" style="display: none;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/>
+                </svg>
+                <span>Stop Voice</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Debug Controls (remove in production) -->
+      <!-- <div class="debug-controls" style="position: fixed; top: 10px; right: 10px; z-index: 1000;">
+        <button onclick="testSpeakingState()" style="padding: 8px 12px; background: #667eea; color: white; border: none; border-radius: 4px; margin: 2px; font-size: 12px;">Test Speaking</button>
+        <button onclick="testThinkingState()" style="padding: 8px 12px; background: #ffe066; color: black; border: none; border-radius: 4px; margin: 2px; font-size: 12px;">Test Thinking</button>
+        <button onclick="testIdleState()" style="padding: 8px 12px; background: #34A853; color: white; border: none; border-radius: 4px; margin: 2px; font-size: 12px;">Test Idle</button>
+      </div> -->
+
+      <!-- Recording Indicator -->
+      <div id="recording-indicator" class="recording-indicator" style="display: none;">
+        <div class="recording-pulse"></div>
+        <span>Listening...</span>
+      </div>
+    </div>
+  </body>
+</html>

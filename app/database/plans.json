@@ -1,0 +1,30 @@
+[
+  {
+    "planId": "basic_20",
+    "name": "Basic 20Mbps",
+    "speed": 20,
+    "price": 19.99,
+    "type": "basic"
+  },
+  {
+    "planId": "standard_50", 
+    "name": "Standard 50Mbps",
+    "speed": 50,
+    "price": 34.99,
+    "type": "standard"
+  },
+  {
+    "planId": "fiber_100",
+    "name": "Fiber 100Mbps", 
+    "speed": 100,
+    "price": 49.99,
+    "type": "fiber"
+  },
+  {
+    "planId": "fiber_200",
+    "name": "Fiber 200Mbps",
+    "speed": 200, 
+    "price": 79.99,
+    "type": "fiber"
+  }
+]

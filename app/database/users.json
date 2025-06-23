@@ -1,0 +1,56 @@
+[
+  {
+    "userId": "abc123",
+    "fullName": "John Doe",
+    "email": "john.doe@gmail.com",
+    "phone": "+123456789",
+    "zone": "Zone 4",
+    "planId": "fiber_100",
+    "subscriptionStatus": "active"
+  },
+  {
+    "userId": "def456",
+    "fullName": "Jane Smith",
+    "email": "jane.smith@outlook.com",
+    "phone": "+987654321",
+    "zone": "Zone 3",
+    "planId": "standard_50",
+    "subscriptionStatus": "active"
+  },
+  {
+    "userId": "ghi789",
+    "fullName": "Mike Johnson",
+    "email": "mike.johnson@yahoo.com",
+    "phone": "+555123456",
+    "zone": "Zone 4",
+    "planId": "basic_20",
+    "subscriptionStatus": "suspended"
+  },
+  {
+    "userId": "jkl012",
+    "fullName": "Sarah Wilson",
+    "email": "sarah.wilson@gmail.com",
+    "phone": "+444567890",
+    "zone": "Zone 5",
+    "planId": "fiber_200",
+    "subscriptionStatus": "active"
+  },
+  {
+    "userId": "mno345",
+    "fullName": "David Brown",
+    "email": "david.brown@hotmail.com",
+    "phone": "+333789012",
+    "zone": "Zone 2",
+    "planId": "fiber_100",
+    "subscriptionStatus": "active"
+  },
+  {
+    "userId": "pqr678",
+    "fullName": "Lisa Garcia",
+    "email": "lisa.garcia@gmail.com",
+    "phone": "+222345678",
+    "zone": "Zone 6",
+    "planId": "basic_20",
+    "subscriptionStatus": "active"
+  }
+]

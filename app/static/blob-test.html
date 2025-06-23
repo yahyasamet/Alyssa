@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blob & SiriWave UI Test</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- SiriWave Dependencies -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/textillate/0.4.0/jquery.textillate.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script src="https://unpkg.com/siriwave/dist/siriwave.umd.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="brand">
+                <h1>Alyssa</h1>
+                <p class="tagline">Blob & SiriWave Test</p>
+            </div>
+            
+            <div class="connection-status">
+                <div id="status-indicator" class="status-indicator">
+                    <div id="status-dot" class="status-dot connected"></div>
+                    <span id="connection-text">Connected</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-interface">
+            <!-- Voice Blob Container -->
+            <div class="blob-container" id="blob-container">
+                <div id="voice-blob" class="voice-blob idle">
+                    <div class="blob-core"></div>
+                    <div class="blob-aura"></div>
+                    <div class="blob-particles">
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                    </div>
+                </div>
+                
+                <div id="state-indicator" class="state-indicator">
+                    <span id="state-text">Ready to help</span>
+                </div>
+            </div>
+
+            <!-- SiriWave Container (Hidden by default) -->
+            <div class="siriwave-container" id="siriwave-container" style="display: none;">
+                <div class="siri-content">
+                    <p class="siri-message" id="siri-message">Alyssa is speaking...</p>
+                    <div id="siri-wave"></div>
+                </div>
+            </div>
+
+            <div class="test-controls" style="margin-top: 40px; text-align: center;">
+                <button onclick="testState('idle')" class="voice-button start-voice" style="margin: 5px;">Idle</button>
+                <button onclick="testState('listening')" class="voice-button start-voice" style="margin: 5px;">Listening</button>
+                <button onclick="testState('speaking')" class="voice-button stop-voice" style="margin: 5px;">Speaking (SiriWave)</button>
+                <button onclick="testState('thinking')" class="voice-button start-voice" style="margin: 5px;">Thinking</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple test functions
+        const voiceBlob = document.getElementById('voice-blob');
+        const stateText = document.getElementById('state-text');
+        const blobContainer = document.getElementById('blob-container');
+        const siriwaveContainer = document.getElementById('siriwave-container');
+        const siriMessage = document.getElementById('siri-message');
+        let siriWave = null;
+        
+        const stateTexts = {
+            idle: 'Ready to help',
+            listening: 'I\'m listening...',
+            speaking: 'Alyssa is speaking...',
+            thinking: 'Thinking...'
+        };
+
+        function initSiriWave() {
+            if (!siriWave && window.SiriWave) {
+                try {
+                    const container = document.getElementById("siri-wave");
+                    const maxWidth = Math.min(640, window.innerWidth - 40);
+                    const width = maxWidth;
+                    const height = Math.max(150, Math.min(200, width * 0.3125));
+                    
+                    siriWave = new SiriWave({
+                        container: container,
+                        width: width,
+                        height: height,
+                        style: "ios9",
+                        amplitude: 1,
+                        speed: 0.2,
+                        autostart: false,
+                        color: "#667eea",
+                        frequency: 6,
+                        globalCompositeOperation: 'lighter'
+                    });
+                    console.log('SiriWave initialized successfully');
+                } catch (error) {
+                    console.error('Error initializing SiriWave:', error);
+                }
+            }
+        }
+
+        function showSiriWave() {
+            if (blobContainer && siriwaveContainer) {
+                blobContainer.classList.add('hidden');
+                siriwaveContainer.style.display = 'flex';
+                setTimeout(() => {
+                    siriwaveContainer.classList.add('visible');
+                }, 50);
+                
+                initSiriWave();
+                if (siriWave) {
+                    siriWave.start();
+                }
+            }
+        }
+
+        function hideSiriWave() {
+            if (blobContainer && siriwaveContainer) {
+                siriwaveContainer.classList.remove('visible');
+                setTimeout(() => {
+                    siriwaveContainer.style.display = 'none';
+                }, 400);
+                
+                blobContainer.classList.remove('hidden');
+                if (siriWave) {
+                    siriWave.stop();
+                }
+            }
+        }
+
+        function testState(newState) {
+            console.log(`Testing state: ${newState}`);
+            
+            // Handle speaking state - show SiriWave, hide blob
+            if (newState === 'speaking') {
+                showSiriWave();
+            } else {
+                hideSiriWave();
+            }
+            
+            // Remove all state classes
+            voiceBlob.classList.remove('idle', 'listening', 'speaking', 'thinking');
+            
+            // Add new state class
+            voiceBlob.classList.add(newState);
+            
+            // Update state text
+            stateText.textContent = stateTexts[newState] || stateTexts.idle;
+            
+            // Update siri message if speaking
+            if (newState === 'speaking' && siriMessage) {
+                siriMessage.textContent = stateTexts[newState];
+            }
+            
+            console.log(`State changed to: ${newState}`);
+        }
+
+        // Test the blob click
+        voiceBlob.addEventListener('click', () => {
+            console.log('Blob clicked!');
+            const states = ['idle', 'listening', 'speaking', 'thinking'];
+            const currentIndex = states.findIndex(state => voiceBlob.classList.contains(state));
+            const nextState = states[(currentIndex + 1) % states.length];
+            testState(nextState);
+        });
+
+        // Initialize Textillate when ready
+        $(document).ready(function() {
+            if ($.fn.textillate) {
+                $('.siri-message').textillate({
+                    loop: false,
+                    sync: true,
+                    in: {
+                        effect: "fadeInUp",
+                        sync: true,
+                        delay: 50
+                    },
+                    out: {
+                        effect: "fadeOutUp",
+                        sync: true,
+                        delay: 50
+                    },
+                });
+            }
+        });
+
+        console.log('Blob & SiriWave test page loaded successfully');
+    </script>
+</body>
+</html>

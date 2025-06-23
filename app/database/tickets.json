@@ -1,0 +1,42 @@
+[
+  {
+    "ticketId": "TICKET_001",
+    "userId": "abc123",
+    "category": "outage",
+    "status": "open",
+    "priority": "high",
+    "description": "No internet since this morning."
+  },
+  {
+    "ticketId": "TICKET_002",
+    "userId": "def456",
+    "category": "billing",
+    "status": "resolved",
+    "priority": "medium",
+    "description": "Question about monthly charges on latest invoice."
+  },
+  {
+    "ticketId": "TICKET_003",
+    "userId": "ghi789",
+    "category": "technical",
+    "status": "in_progress",
+    "priority": "medium",
+    "description": "WiFi router keeps disconnecting every few hours."
+  },
+  {
+    "ticketId": "TICKET_004",
+    "userId": "jkl012",
+    "category": "billing",
+    "status": "escalated",
+    "priority": "high",
+    "description": "Incorrect charges for upgrade that was cancelled."
+  },
+  {
+    "ticketId": "TICKET_005",
+    "userId": "mno345",
+    "category": "technical",
+    "status": "open",
+    "priority": "low",
+    "description": "Request for port forwarding configuration help."
+  }
+]
