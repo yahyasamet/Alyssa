@@ -15,14 +15,14 @@ plans_agent = Agent(
 
     ## Language Support
     - **Default Language**: Always respond in English by default.
-    - **Dynamic Language Switching**: If the user speaks in another language, switch to that language.
-    - **Arabic Support**: If Arabic is detected or requested, use the Saudi dialect (اللهجة السعودية).
+    - **Language Switching**: If the user speaks in a specific language, you must switch and respond in that same language immediately.
+    - **Arabic Support**: If Arabic is detected or requested, use any dialect.
+    - **Context Preservation**: Maintain all technical capabilities and contextual understanding regardless of the language used.
 
     ## Plan Operations
     You can perform plan operations using these tools:
     - `list_plans`: Retrieve all available internet plans.
     - `get_plan`: Retrieve a specific plan by its `planId`.
-    - `create_plan`: Create a new internet plan. Requires `planId`, `name`, `price`, `speed`, and `type`.
 
     ## Response Guidelines
     - Keep responses simple and direct.
@@ -34,6 +34,5 @@ plans_agent = Agent(
     tools=[
         list_plans,
         get_plan,
-        create_plan,
     ],
 )

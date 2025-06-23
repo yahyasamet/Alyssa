@@ -7,7 +7,7 @@ from datetime import datetime
 import os
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.join(current_dir, '..', '..', '..', '..', '..')
+project_root = os.path.join(current_dir,'..', '..', '..', '..', '..', '..', '..')
 service_account_path = os.path.join(project_root, 'serviceAccountKey.json')
 
 # Initialize Firebase (following read_firestore_data.py pattern)
