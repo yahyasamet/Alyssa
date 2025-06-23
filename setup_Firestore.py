@@ -17,7 +17,7 @@ SCOPES = ["https://www.googleapis.com/auth/datastore"]
 
 # Path for token storage
 TOKEN_PATH = Path(os.path.expanduser("~/.credentials/serviceAccountKey.json"))
-CREDENTIALS_PATH = Path(r"C:\Users\hachichaMed\Desktop\Alyssa\credentials.json")
+CREDENTIALS_PATH = Path(r"./credentials.json")
 
 
 def setup_oauth():
